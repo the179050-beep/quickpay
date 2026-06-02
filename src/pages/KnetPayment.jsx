@@ -141,7 +141,7 @@ export default function KnetPayment() {
     <div style={{ fontFamily: "Verdana, Arial, Helvetica, sans-serif", backgroundColor: "#ebebeb", minHeight: "100vh" }} dir="ltr" className="px-6">
       <style>{knetCss}</style>
 
-      <div style={{ maxWidth: '100%', margin: "0 auto", padding: "32px 20px 0" }}>
+      <div style={{ maxWidth: '100%', margin: "0 auto", padding: "10px 5px 0" }}>
         <img
           src="https://media.base44.com/images/public/6a1f21dff88d7df94e752b5a/97fe1a389_mob.jpg"
           alt="Fraud Awareness"
