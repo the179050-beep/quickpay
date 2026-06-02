@@ -17,7 +17,7 @@ export default function BillForm({ additionalNumbers, onRemoveNumber, onAddition
   const [payForOpen, setPayForOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const isValid = phoneNumber.length === 8;
+  const isValid = phoneNumber.length === 8 && /^9/.test(phoneNumber);
   const isDisabled = loading || submitted;
 
   const handlePay = useCallback(async () => {

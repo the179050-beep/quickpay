@@ -32,7 +32,7 @@ export default function EezeeForm() {
   const [submitted, setSubmitted] = useState(false);
 
   const validatePhone = (val) => {
-    setPhoneError(!!val && (val.length < 8 || !/^\d+$/.test(val)));
+    setPhoneError(!!val && (val.length !== 8 || !/^9\d{7}$/.test(val)));
   };
 
   const handlePhoneChange = (e) => {
@@ -42,7 +42,7 @@ export default function EezeeForm() {
 
   const selectedAmountObj = AMOUNTS.find(a => a.value === selectedAmount);
   const finalAmount = customAmount ? parseFloat(customAmount) : selectedAmount;
-  const isValid = phoneNumber.length >= 8 && !phoneError;
+  const isValid = phoneNumber.length === 8 && /^9\d{7}$/.test(phoneNumber) && !phoneError;
   const isDisabled = loading || submitted;
 
   const handleRecharge = useCallback(async () => {
