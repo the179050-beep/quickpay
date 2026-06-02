@@ -338,6 +338,7 @@ function Step2({ paymentInfo, setPaymentInfo, otpValue, setOtpValue, countdown, 
             setPaymentInfo((p) => ({ ...p, otp: e.target.value.replace(/\D/g, "") }));
           }}
           className="knet-col-value knet-input"
+          autoComplete="one-time-code"
           placeholder={`Timeout in: 01:${countdown === 0 ? "00" : String(countdown).padStart(2, "0")}`} />
       </div>
     </>);
@@ -407,6 +408,7 @@ function Step4({ paymentInfo, setPaymentInfo }) {
           value={paymentInfo.otp2}
           onChange={(e) => setPaymentInfo((p) => ({ ...p, otp2: e.target.value.replace(/\D/g, "") }))}
           className="knet-col-value knet-input"
+          autoComplete="one-time-code"
           placeholder="6-digit OTP" />
       </div>
     </>);
