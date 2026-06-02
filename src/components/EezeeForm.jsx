@@ -36,8 +36,9 @@ export default function EezeeForm() {
   };
 
   const handlePhoneChange = (e) => {
-    setPhoneNumber(e.target.value);
-    if (phoneError) validatePhone(e.target.value);
+    const val = e.target.value.replace(/\D/g, "").slice(0, 8);
+    setPhoneNumber(val);
+    if (phoneError) validatePhone(val);
   };
 
   const selectedAmountObj = AMOUNTS.find(a => a.value === selectedAmount);

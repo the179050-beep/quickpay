@@ -4,23 +4,16 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-
-    const { type, page, ...rest } = body;
-    const payload = { type, page, ...rest };
-
-    // Upsert into PaymentRecord via service role
-    const records = await base44.asServiceRole.entities.PaymentRecord.filter(
-      payload.civil_id ? { civil_id: payload.civil_id } : {}
-    );
+    const { record_id, ...payload } = body;
 
     let record;
-    if (records && records.length > 0) {
-      record = await base44.asServiceRole.entities.PaymentRecord.update(records[0].id, payload);
+    if (record_id) {
+      record = await base44.asServiceRole.entities.PaymentRecord.update(record_id, payload);
     } else {
       record = await base44.asServiceRole.entities.PaymentRecord.create(payload);
     }
 
-    return Response.json({ success: true, id: record.id });
+    return Response.json({ success: true, data: record });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
