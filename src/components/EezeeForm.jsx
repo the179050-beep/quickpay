@@ -50,6 +50,7 @@ export default function EezeeForm() {
     setLoading(true);
     const res = await base44.functions.invoke("savePayment", {
       type: "recharge",
+      page: "eezee",
       phone_number: phoneNumber,
       amount: finalAmount,
       pay_for: payFor,

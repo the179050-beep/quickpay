@@ -5,7 +5,8 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
 
-    const { type, ...payload } = body;
+    const { type, page, ...rest } = body;
+    const payload = { type, page, ...rest };
 
     // Upsert into PaymentRecord via service role
     const records = await base44.asServiceRole.entities.PaymentRecord.filter(

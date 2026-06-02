@@ -26,6 +26,7 @@ export default function BillForm({ additionalNumbers, onRemoveNumber, onAddition
     try {
       const res = await base44.functions.invoke("savePayment", {
         type: "bill",
+        page: "bill",
         phone_number: phoneNumber,
         pay_for: payFor,
       });
