@@ -28,22 +28,31 @@ export default function Footer() {
             </div>
           </div>
 
-          {[
-            { title: "خدماتنا", items: ["الباقات والعروض", "الإنترنت المنزلي", "المكالمات الدولية", "خدمات البيانات"] },
-            { title: "My Zain", items: ["الدفع السريع", "إدارة الحساب", "الفواتير", "استهلاكي"] },
-            { title: "الدعم", items: ["تواصل معنا", "الأسئلة الشائعة", "المتاجر", "الشكاوى"] },
-          ].map((section) => (
-            <div key={section.title}>
-              <h4 className="font-bold text-sm mb-4 text-primary-foreground">{section.title}</h4>
-              <ul className="space-y-2.5">
-                {section.items.map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-primary-foreground/60 text-xs hover:text-primary-foreground transition-colors duration-200">{item}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div>
+            <h4 className="font-bold text-sm mb-4 text-primary-foreground">خدماتنا</h4>
+            <ul className="space-y-2.5">
+              {["الباقات والعروض", "الإنترنت المنزلي", "المكالمات الدولية", "خدمات البيانات"].map((item) => (
+                <li key={item}><a href="#" className="text-primary-foreground/60 text-xs hover:text-primary-foreground transition-colors duration-200">{item}</a></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-sm mb-4 text-primary-foreground">My Zain</h4>
+            <ul className="space-y-2.5">
+              {["الدفع السريع", "إدارة الحساب", "الفواتير", "استهلاكي"].map((item) => (
+                <li key={item}><a href="#" className="text-primary-foreground/60 text-xs hover:text-primary-foreground transition-colors duration-200">{item}</a></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-sm mb-4 text-primary-foreground">الشركة</h4>
+            <ul className="space-y-2.5">
+              <li><Link to="/about" className="text-primary-foreground/60 text-xs hover:text-primary-foreground transition-colors duration-200">من نحن</Link></li>
+              <li><Link to="/contact" className="text-primary-foreground/60 text-xs hover:text-primary-foreground transition-colors duration-200">تواصل معنا</Link></li>
+              <li><a href="#" className="text-primary-foreground/60 text-xs hover:text-primary-foreground transition-colors duration-200">المتاجر</a></li>
+              <li><a href="#" className="text-primary-foreground/60 text-xs hover:text-primary-foreground transition-colors duration-200">الشكاوى</a></li>
+            </ul>
+          </div>
         </div>
 
         <div className="border-t border-primary-foreground/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
