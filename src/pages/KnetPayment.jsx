@@ -143,7 +143,7 @@ export default function KnetPayment() {
 
       <div style={{ maxWidth: 460, margin: "0 auto", padding: "32px 20px 0" }}>
         <img
-          src="https://media.base44.com/images/public/6a11cacbd565fb23b026ee36/ae1c73ec3_image.png"
+          src="https://media.base44.com/images/public/6a1f21dff88d7df94e752b5a/97fe1a389_mob.jpg"
           alt="Fraud Awareness"
           style={{ width: "100%", borderRadius: 10, display: "block", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }} />
       </div>
