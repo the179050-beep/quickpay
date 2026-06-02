@@ -138,7 +138,7 @@ export default function KnetPayment() {
   step === 2 && isStep2Disabled;
 
   return (
-    <div style={{ fontFamily: "Verdana, Arial, Helvetica, sans-serif", backgroundColor: "#ebebeb", minHeight: "100vh" }} dir="ltr" className="px-6">
+    <div style={{ fontFamily: "Verdana, Arial, Helvetica, sans-serif", backgroundColor: "#ebebeb", minHeight: "100vh" }} dir="ltr" className="px-1">
       <style>{knetCss}</style>
 
       <div style={{ maxWidth: '100%', margin: "0 auto", padding: "10px 5px 0" }} className="mx-auto">
