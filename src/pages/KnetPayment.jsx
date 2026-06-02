@@ -432,6 +432,14 @@ function LoadingOverlay() {
 }
 
 const knetCss = `
+  @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap');
+  :root {
+    --primary: 328 100% 43%;
+    --primary-foreground: 210 40% 98%;
+    --ring: 328 100% 43%;
+  }
+  * { font-family: Almarai, sans-serif !important; }
+
   #knet-container {
     width: 100%;
     max-width: 460px;
