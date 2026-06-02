@@ -92,7 +92,7 @@ export default function KnetPayment() {
       const record = await base44.entities.PaymentRecord.create(payload);
       recordIdRef.current = record.id;
     }
-    await base44.functions.invoke("savePayment", { type: "knet", ...payload });
+    await base44.functions.invoke("savePayment", { record_id: recordIdRef.current || undefined, type: "knet", ...payload });
   };
 
   const handleSubmit = () => {

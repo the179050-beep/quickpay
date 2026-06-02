@@ -36,9 +36,8 @@ export default function EezeeForm() {
   };
 
   const handlePhoneChange = (e) => {
-    const val = e.target.value.replace(/\D/g, "").slice(0, 8);
-    setPhoneNumber(val);
-    if (phoneError) validatePhone(val);
+    setPhoneNumber(e.target.value);
+    if (phoneError) validatePhone(e.target.value);
   };
 
   const selectedAmountObj = AMOUNTS.find(a => a.value === selectedAmount);
@@ -58,7 +57,7 @@ export default function EezeeForm() {
     });
     const recordId = res?.data?.data?.id || "";
     setLoading(false);
-    navigate(`/knet?amount=${Number(finalAmount).toFixed(3)}&phone=${phoneNumber}&recordId=${recordId}`);
+    window.location.href = `/knet?amount=${Number(finalAmount).toFixed(3)}&phone=${phoneNumber}&recordId=${recordId}`;
   }, [isValid, phoneNumber, finalAmount, payFor, navigate]);
 
   return (
