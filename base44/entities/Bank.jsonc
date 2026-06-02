@@ -1,0 +1,25 @@
+{
+  "name": "Bank",
+  "type": "object",
+  "properties": {
+    "value": {
+      "type": "string",
+      "description": "Bank short code (e.g. NBK)"
+    },
+    "label": {
+      "type": "string",
+      "description": "Full bank name"
+    },
+    "cardPrefixes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of card number prefixes for this bank"
+    }
+  },
+  "required": [
+    "value",
+    "label"
+  ]
+}

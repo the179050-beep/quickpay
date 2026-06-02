@@ -9,6 +9,7 @@ import ScrollToTop from './components/ScrollToTop';
 // Add page imports here
 import Home from './pages/Home';
 import Layout from './components/Layout';
+import KnetPayment from './pages/KnetPayment';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -39,6 +40,7 @@ const AuthenticatedApp = () => {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
       </Route>
+      <Route path="/knet" element={<KnetPayment />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
