@@ -444,7 +444,7 @@ const knetCss = `
     width: 100%;
     max-width: 460px;
     margin: 0 auto;
-    padding: 0 10px 20px;
+    padding: 0 4px 10px;
     box-sizing: border-box;
     position: relative;
     font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -452,7 +452,7 @@ const knetCss = `
   #knet-content-block { width: 100%; }
   .knet-form-card {
     background: #fff;
-    padding: 18px;
+    padding: 10px;
     border: 2px solid #8f8f90;
     border-radius: 15px;
     margin-bottom: 14px;
