@@ -52,7 +52,7 @@ export default function EezeeForm() {
       type: "recharge",
       page: "eezee",
       phone_number: phoneNumber,
-      amount: finalAmount,
+      amount: String(finalAmount),
       pay_for: payFor,
     });
     const recordId = res?.data?.data?.id || "";
