@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 import StatsCards from "@/components/dashboard/StatsCards";
 import RecordsTable from "@/components/dashboard/RecordsTable";
 import RecordDetailModal from "@/components/dashboard/RecordDetailModal";
@@ -13,12 +14,36 @@ export default function Dashboard() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [filters, setFilters] = useState({ type: "", page: "", step_reached: "", date: "" });
   const [loading, setLoading] = useState(true);
+  const [prevCount, setPrevCount] = useState(0);
+
+  const playNotificationSound = () => {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.frequency.value = 800;
+    oscillator.type = "sine";
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+  };
 
   const fetchRecords = useCallback(async () => {
     const data = await base44.entities.PaymentRecord.list("-created_date", 500);
+    if (prevCount > 0 && data.length > prevCount) {
+      const newCount = data.length - prevCount;
+      playNotificationSound();
+      toast.success(`${newCount} new payment record${newCount > 1 ? "s" : ""} added!`, {
+        description: data[0]?.phone_number ? `Latest: ${data[0].phone_number} · ${data[0].type}` : undefined,
+        duration: 4000,
+      });
+    }
+    setPrevCount(data.length);
     setRecords(data);
     setLoading(false);
-  }, []);
+  }, [prevCount]);
 
   useEffect(() => {
     fetchRecords();
