@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchRecords();
-    const interval = setInterval(fetchRecords, 10000);
+    const interval = setInterval(fetchRecords, 5000);
     return () => clearInterval(interval);
   }, [fetchRecords]);
 
@@ -79,7 +79,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Payment Dashboard</h1>
-            <p className="text-gray-400 text-sm mt-1">Real-time monitoring · auto-refresh every 10s</p>
+            <p className="text-gray-400 text-sm mt-1">Real-time monitoring · auto-refresh every 5s</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block" />
