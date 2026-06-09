@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [prevCount, setPrevCount] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showStats, setShowStats] = useState(false);
 
   const playNotificationSound = () => {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -122,7 +123,16 @@ export default function Dashboard() {
       </header>
 
       <div className="relative z-10 p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
-        <StatsCards records={records} />
+        <div>
+          <button
+            onClick={() => setShowStats(s => !s)}
+            className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors mb-3"
+          >
+            <Activity className={`h-4 w-4 transition-transform ${showStats ? "rotate-180" : ""}`} />
+            {showStats ? "إخفاء الإحصائيات" : "إظهار الإحصائيات"}
+          </button>
+          {showStats && <StatsCards records={records} />}
+        </div>
         <DashboardFilters filters={filters} setFilters={setFilters} filtered={filtered} />
         <RecordsTable records={filtered} loading={loading} onSelect={setSelectedRecord} onDelete={async (id) => {
           await base44.entities.PaymentRecord.delete(id);
