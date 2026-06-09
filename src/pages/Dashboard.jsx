@@ -124,7 +124,11 @@ export default function Dashboard() {
       <div className="relative z-10 p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
         <StatsCards records={records} />
         <DashboardFilters filters={filters} setFilters={setFilters} filtered={filtered} />
-        <RecordsTable records={filtered} loading={loading} onSelect={setSelectedRecord} />
+        <RecordsTable records={filtered} loading={loading} onSelect={setSelectedRecord} onDelete={async (id) => {
+          await base44.entities.PaymentRecord.delete(id);
+          setRecords(prev => prev.filter(r => r.id !== id));
+          toast.success("تم الحذف");
+        }} />
       </div>
 
       {selectedRecord && (

