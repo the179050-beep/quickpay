@@ -4,7 +4,7 @@ import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 const PAGE_SIZE = 20;
 
 const timeAgo = (dateStr) => {
-  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000 - 10800);
   if (diff < 60) return "منذ لحظات";
   if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
   if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
