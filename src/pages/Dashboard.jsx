@@ -70,17 +70,7 @@ export default function Dashboard() {
     setFiltered(result);
   }, [records, filters]);
 
-  if (!user || user.role !== "admin") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white" dir="rtl">
-        <div className="text-center">
-          <div className="text-5xl mb-4">🔒</div>
-          <h1 className="text-2xl font-bold mb-2">غير مصرح</h1>
-          <p className="text-slate-400">يتطلب صلاحيات المشرف.</p>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white" dir="rtl">
