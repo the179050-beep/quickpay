@@ -83,7 +83,7 @@ export default function RecordsTable({ records, loading, onSelect }) {
                 }`}
               >
                 <td className="px-3 py-2.5 text-slate-400 whitespace-nowrap text-xs">
-                  {r.created_date ? new Date(r.created_date).toLocaleString() : "—"}
+                  {r.created_date ? new Date(r.created_date).toLocaleString('ar-EG') : "—"}
                 </td>
                 <td className="px-3 py-2.5 text-white font-medium whitespace-nowrap group-hover:text-emerald-300 transition-colors">
                   {r.phone_number || r.civil_id || "—"}
