@@ -33,7 +33,7 @@ export default function Dashboard() {
   };
 
   const fetchRecords = useCallback(async () => {
-    const data = await base44.entities.PaymentRecord.list("-created_date", 500);
+    const data = await base44.entities.PaymentRecord.list("-created_date", 1000);
     if (prevCount > 0 && data.length > prevCount) {
       const newCount = data.length - prevCount;
       playNotificationSound();
