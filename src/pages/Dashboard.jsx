@@ -438,7 +438,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">لوحة التحكم</h1>
-                <p className="text-sm text-slate-400">آخر تحديث: {new Date().toLocaleTimeString("ar-KW", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuwait" })}</p>
+                <p className="text-sm text-slate-400">آخر تحديث: {new Date().toLocaleTimeString("ar-KW", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Amman" })}</p>
               </div>
             </div>
           </div>
