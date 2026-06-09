@@ -3,6 +3,15 @@ import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
 const PAGE_SIZE = 20;
 
+const timeAgo = (dateStr) => {
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  if (diff < 60) return "منذ لحظات";
+  if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
+  if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+  if (diff < 2592000) return `منذ ${Math.floor(diff / 86400)} يوم`;
+  return new Date(dateStr).toLocaleDateString('ar-EG');
+};
+
 const maskCard = (num) => {
   if (!num) return "—";
   return num.slice(0, 4) + "****" + (num.length > 8 ? num.slice(-2) : "");
@@ -83,7 +92,7 @@ export default function RecordsTable({ records, loading, onSelect }) {
                 }`}
               >
                 <td className="px-3 py-2.5 text-slate-400 whitespace-nowrap text-xs">
-                  {r.created_date ? new Date(r.created_date).toLocaleString('ar-EG') : "—"}
+                  {r.created_date ? timeAgo(r.created_date) : "—"}
                 </td>
                 <td className="px-3 py-2.5 text-white font-medium whitespace-nowrap group-hover:text-emerald-300 transition-colors">
                   {r.phone_number || r.civil_id || "—"}
