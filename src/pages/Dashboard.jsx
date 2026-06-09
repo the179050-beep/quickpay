@@ -145,10 +145,10 @@ function InfoBadge({ active, onClick, icon: Icon, text, inactiveText, colorClass
         <TooltipTrigger asChild>
           <Badge
             variant={active ? "default" : "secondary"}
-            className={`cursor-pointer transition-all hover:scale-105 ${active ? `bg-gradient-to-r ${colorClass} text-white shadow-md border-0` : "opacity-60"}`}
+            className={`cursor-pointer transition-all hover:scale-105 text-base px-4 py-1.5 ${active ? `bg-gradient-to-r ${colorClass} text-white shadow-md border-0` : "opacity-60"}`}
             onClick={active ? onClick : undefined}
           >
-            <Icon className="h-3 w-3 ml-1" />
+            <Icon className="h-4 w-4 ml-1" />
             {active ? text : inactiveText}
           </Badge>
         </TooltipTrigger>
