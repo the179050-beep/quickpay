@@ -5,11 +5,58 @@ import StatsCards from "@/components/dashboard/StatsCards";
 import RecordsTable from "@/components/dashboard/RecordsTable";
 import RecordDetailModal from "@/components/dashboard/RecordDetailModal";
 import DashboardFilters from "@/components/dashboard/DashboardFilters";
-import { useAuth } from "@/lib/AuthContext";
-import { Bell, RefreshCw, Activity } from "lucide-react";
+import { Bell, RefreshCw, Activity, Lock } from "lucide-react";
+
+const DASHBOARD_PASSWORD = import.meta.env.VITE_DASHBOARD_PASSWORD || "admin123";
+
+function PasswordGate({ onUnlock }) {
+  const [input, setInput] = useState("");
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (input === DASHBOARD_PASSWORD) {
+      sessionStorage.setItem("dash_unlocked", "1");
+      onUnlock();
+    } else {
+      setError(true);
+      setInput("");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-950" dir="rtl">
+      <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-8 w-full max-w-sm shadow-2xl">
+        <div className="flex justify-center mb-6">
+          <div className="bg-gradient-to-br from-emerald-600 to-teal-600 p-3 rounded-xl">
+            <Lock className="h-6 w-6 text-white" />
+          </div>
+        </div>
+        <h1 className="text-xl font-bold text-white text-center mb-6">لوحة المدفوعات</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="password"
+            value={input}
+            onChange={e => { setInput(e.target.value); setError(false); }}
+            placeholder="كلمة المرور"
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 outline-none focus:border-emerald-500 transition-colors"
+            autoFocus
+          />
+          {error && <p className="text-red-400 text-sm text-center">كلمة المرور غير صحيحة</p>}
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 text-white font-semibold py-2.5 rounded-lg transition-opacity"
+          >
+            دخول
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("dash_unlocked") === "1");
   const [records, setRecords] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -70,7 +117,7 @@ export default function Dashboard() {
     setFiltered(result);
   }, [records, filters]);
 
-
+  if (!unlocked) return <PasswordGate onUnlock={() => setUnlocked(true)} />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white" dir="rtl">
