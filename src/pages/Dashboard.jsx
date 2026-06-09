@@ -610,8 +610,8 @@ export default function Dashboard() {
                         <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.025] transition-colors duration-150 group">
                            <td className="px-5 py-3.5">
                              <div className="flex flex-col gap-2">
-                               <span className="font-mono text-white text-sm font-medium">{r.phone_number || r.civil_id || "—"}</span>
-                               <div className="flex flex-wrap gap-1.5">
+                               <span className="font-mono text-white text-sm font-medium block">{r.phone_number || r.civil_id || "—"}</span>
+                               <div className="flex flex-wrap gap-1.5 mt-0.5">
                                  <InfoBadge
                                    active={r.phone_number || r.id_number || r.civil_id}
                                    onClick={() => openDialog(r, "personal")}
