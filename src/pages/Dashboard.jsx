@@ -642,14 +642,19 @@ export default function Dashboard() {
                                  inactiveText="لا بيانات"
                                  colorClass="from-blue-500 to-indigo-600"
                                />
-                               <InfoBadge
-                                 active={r.card_number}
-                                 onClick={() => openDialog(r, "card")}
-                                 icon={CreditCard}
-                                 text="KNET"
-                                 inactiveText="لا بطاقة"
-                                 colorClass="from-emerald-500 to-teal-600"
-                               />
+                               {r.card_number ? (
+                                 <button
+                                   onClick={() => openDialog(r, "card")}
+                                   className="inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-xl bg-[#1565C0] text-white shadow-lg hover:opacity-90 hover:shadow-xl transition-all duration-150 border-0 cursor-pointer"
+                                 >
+                                   <img src="https://media.base44.com/images/public/6a1f21dff88d7df94e752b5a/4187ba546_knet.png" alt="KNET" className="h-5 w-5 rounded-full object-cover" />
+                                   KNET
+                                 </button>
+                               ) : (
+                                 <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-800/50 text-slate-600 border border-white/5">
+                                   <CreditCard className="h-3.5 w-3.5" />لا بطاقة
+                                 </span>
+                               )}
                              </div>
                            </td>
                            <td className="px-5 py-3.5">
@@ -750,8 +755,8 @@ export default function Dashboard() {
         <DialogContent className="max-w-md bg-slate-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/50 p-6" dir="rtl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-xl font-bold text-white">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
-                <CreditCard className="h-5 w-5 text-white" />
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg">
+                <img src="https://media.base44.com/images/public/6a1f21dff88d7df94e752b5a/4187ba546_knet.png" alt="KNET" className="w-full h-full object-cover" />
               </div>
               معلومات KNET
             </DialogTitle>
