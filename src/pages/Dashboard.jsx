@@ -71,18 +71,18 @@ export default function Dashboard() {
 
   if (!user || user.role !== "admin") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white" dir="rtl">
         <div className="text-center">
           <div className="text-5xl mb-4">🔒</div>
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-slate-400">Admin access required.</p>
+          <h1 className="text-2xl font-bold mb-2">غير مصرح</h1>
+          <p className="text-slate-400">يتطلب صلاحيات المشرف.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white" dir="ltr">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white" dir="rtl">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-500/15 to-teal-500/10 blur-3xl" />
@@ -102,11 +102,11 @@ export default function Dashboard() {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-                Payment Dashboard
+                لوحة المدفوعات
               </h1>
               <p className="text-xs text-slate-400 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block" />
-                Live · auto-refresh every 5s
+                مباشر · تحديث كل 5 ثواني
               </p>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default function Dashboard() {
             className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-emerald-400 transition-colors text-sm"
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-            Refresh
+            تحديث
           </button>
         </div>
       </header>

@@ -17,10 +17,10 @@ const TrendBars = ({ values }) => {
 };
 
 const CARDS_CONFIG = [
-  { key: "todayCount", label: "Today's Records", icon: Users, gradient: "from-blue-600 to-blue-700", glow: "from-blue-500/20 to-blue-500/5" },
-  { key: "bill", label: "Bill Payments", icon: Receipt, gradient: "from-purple-600 to-purple-700", glow: "from-purple-500/20 to-purple-500/5" },
-  { key: "recharge", label: "Recharge", icon: Zap, gradient: "from-emerald-600 to-emerald-700", glow: "from-emerald-500/20 to-emerald-500/5" },
-  { key: "knet", label: "KNET", icon: CreditCard, gradient: "from-amber-600 to-amber-700", glow: "from-amber-500/20 to-amber-500/5" },
+  { key: "todayCount", label: "سجلات اليوم", icon: Users, gradient: "from-blue-600 to-blue-700", glow: "from-blue-500/20 to-blue-500/5" },
+  { key: "bill", label: "مدفوعات الفواتير", icon: Receipt, gradient: "from-purple-600 to-purple-700", glow: "from-purple-500/20 to-purple-500/5" },
+  { key: "recharge", label: "إعادة الشحن", icon: Zap, gradient: "from-emerald-600 to-emerald-700", glow: "from-emerald-500/20 to-emerald-500/5" },
+  { key: "knet", label: "كي-نت", icon: CreditCard, gradient: "from-amber-600 to-amber-700", glow: "from-amber-500/20 to-amber-500/5" },
 ];
 
 export default function StatsCards({ records }) {
@@ -63,7 +63,7 @@ export default function StatsCards({ records }) {
             </div>
             <div className="relative flex items-center gap-1 mt-3">
               <TrendingUp className="h-3 w-3 text-emerald-400" />
-              <span className="text-xs text-emerald-400 font-medium">Live data</span>
+              <span className="text-xs text-emerald-400 font-medium">بيانات مباشرة</span>
             </div>
           </div>
         ))}
@@ -73,14 +73,14 @@ export default function StatsCards({ records }) {
         <div className="rounded-2xl border border-slate-700/50 bg-slate-800/40 backdrop-blur-sm p-4 flex items-center gap-3">
           <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
           <div className="text-sm min-w-0">
-            <span className="text-slate-400">Latest: </span>
+            <span className="text-slate-400">الأخير: </span>
             <span className="text-white font-semibold">{stats.latest.phone_number || stats.latest.civil_id || "—"}</span>
             <span className="text-slate-600 mx-2">·</span>
-            <span className="text-slate-300">{stats.latest.type} · step {stats.latest.step_reached ?? "—"}</span>
+            <span className="text-slate-300">{stats.latest.type} · خطوة {stats.latest.step_reached ?? "—"}</span>
             <span className="text-slate-600 mx-2">·</span>
             <span className="text-slate-400 text-xs">{stats.latest.created_date ? new Date(stats.latest.created_date).toLocaleString() : ""}</span>
           </div>
-          <div className="ml-auto text-xs text-slate-500 flex-shrink-0">{stats.total} total</div>
+          <div className="mr-auto text-xs text-slate-500 flex-shrink-0">{stats.total} إجمالي</div>
         </div>
       )}
     </div>

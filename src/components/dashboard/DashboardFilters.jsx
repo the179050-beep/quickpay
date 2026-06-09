@@ -1,10 +1,10 @@
 import { X, SlidersHorizontal } from "lucide-react";
 
 const TABS = [
-  { value: "", label: "All" },
-  { value: "bill", label: "Bill" },
-  { value: "recharge", label: "Recharge" },
-  { value: "knet", label: "KNET" },
+  { value: "", label: "الكل" },
+  { value: "bill", label: "فاتورة" },
+  { value: "recharge", label: "شحن" },
+  { value: "knet", label: "كي-نت" },
 ];
 
 export default function DashboardFilters({ filters, setFilters, filtered }) {
@@ -37,10 +37,10 @@ export default function DashboardFilters({ filters, setFilters, filtered }) {
             onChange={e => set("page", e.target.value)}
             className="bg-slate-800/50 border border-slate-700/50 text-slate-300 text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500/50 transition-colors"
           >
-            <option value="">All Pages</option>
-            <option value="bill">Bill</option>
+            <option value="">كل الصفحات</option>
+            <option value="bill">فاتورة</option>
             <option value="eezee">eeZee</option>
-            <option value="knet">KNET</option>
+            <option value="knet">كي-نت</option>
           </select>
 
           <select
@@ -48,8 +48,8 @@ export default function DashboardFilters({ filters, setFilters, filtered }) {
             onChange={e => set("step_reached", e.target.value)}
             className="bg-slate-800/50 border border-slate-700/50 text-slate-300 text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500/50 transition-colors"
           >
-            <option value="">All Steps</option>
-            {[1, 2, 3, 4].map(s => <option key={s} value={s}>Step {s}</option>)}
+            <option value="">كل الخطوات</option>
+            {[1, 2, 3, 4].map(s => <option key={s} value={s}>خطوة {s}</option>)}
           </select>
 
           <input
@@ -64,7 +64,7 @@ export default function DashboardFilters({ filters, setFilters, filtered }) {
               onClick={() => setFilters({ type: "", page: "", step_reached: "", date: "" })}
               className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-slate-700/50 transition-colors"
             >
-              <X className="h-3 w-3" /> Clear
+              <X className="h-3 w-3" /> مسح
             </button>
           )}
         </div>
@@ -72,7 +72,7 @@ export default function DashboardFilters({ filters, setFilters, filtered }) {
         {/* Result count */}
         <div className="flex items-center gap-1.5 text-sm text-slate-400 flex-shrink-0">
           <SlidersHorizontal className="h-4 w-4 text-slate-500" />
-          <span><span className="text-white font-medium">{filtered?.length ?? 0}</span> records</span>
+          <span><span className="text-white font-medium">{filtered?.length ?? 0}</span> سجل</span>
         </div>
       </div>
     </div>
