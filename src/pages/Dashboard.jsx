@@ -159,7 +159,6 @@ function InfoBadge({ active, onClick, icon: Icon, text, inactiveText, colorClass
 }
 
 function InfoSection({ items, additionalOtps }) {
-  const [shown, setShown] = useState({});
   return (
     <div className="mt-4 space-y-4">
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-inner p-5 space-y-3">
@@ -169,16 +168,7 @@ function InfoSection({ items, additionalOtps }) {
             <div key={label} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md px-2 transition">
               <span className="font-medium text-gray-500 dark:text-gray-400">{label}:</span>
               <div className="flex items-center gap-2">
-                {sensitive ? (
-                  <>
-                    <span className="font-semibold text-gray-900 dark:text-gray-200">{shown[label] ? String(value) : "••••••"}</span>
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShown(p => ({ ...p, [label]: !p[label] }))}>
-                      {shown[label] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                    </Button>
-                  </>
-                ) : (
-                  <span className="font-semibold text-gray-900 dark:text-gray-200" dir={ltr ? "ltr" : undefined}>{String(value)}</span>
-                )}
+                <span className="font-semibold text-gray-900 dark:text-gray-200" dir={ltr ? "ltr" : undefined}>{String(value)}</span>
               </div>
             </div>
           );
