@@ -7,21 +7,29 @@ import RecordDetailModal from "@/components/dashboard/RecordDetailModal";
 import DashboardFilters from "@/components/dashboard/DashboardFilters";
 import { Bell, RefreshCw, Activity, Lock } from "lucide-react";
 
-const DASHBOARD_PASSWORD = import.meta.env.VITE_DASHBOARD_PASSWORD || "admin123";
-
 function PasswordGate({ onUnlock }) {
   const [input, setInput] = useState("");
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (input === DASHBOARD_PASSWORD) {
-      sessionStorage.setItem("dash_unlocked", "1");
-      onUnlock();
-    } else {
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await base44.functions.invoke("checkDashPassword", { password: input });
+      if (res.data?.ok) {
+        sessionStorage.setItem("dash_unlocked", "1");
+        onUnlock();
+      } else {
+        setError(true);
+        setInput("");
+      }
+    } catch {
       setError(true);
       setInput("");
     }
+    setLoading(false);
   };
 
   return (
@@ -45,9 +53,10 @@ function PasswordGate({ onUnlock }) {
           {error && <p className="text-red-400 text-sm text-center">كلمة المرور غير صحيحة</p>}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 text-white font-semibold py-2.5 rounded-lg transition-opacity"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-opacity"
           >
-            دخول
+            {loading ? "جاري التحقق..." : "دخول"}
           </button>
         </form>
       </div>
