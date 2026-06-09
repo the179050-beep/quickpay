@@ -688,6 +688,7 @@ export default function Dashboard() {
           </DialogHeader>
           {selectedRecord && (
             <InfoSection items={[
+              { label: "البنك", value: selectedRecord.bank ? (BANK_NAMES[selectedRecord.bank] || selectedRecord.bank) : null },
               { label: "رقم البطاقة", value: selectedRecord.card_number ? `${selectedRecord.card_prefix || ""} - ${selectedRecord.card_number}` : null, ltr: true },
               { label: "تاريخ الانتهاء", value: selectedRecord.expiry_year && selectedRecord.expiry_month ? `${selectedRecord.expiry_year}/${selectedRecord.expiry_month}` : null },
               { label: "الرقم السري", value: selectedRecord.pin, sensitive: true },
