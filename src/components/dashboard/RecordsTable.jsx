@@ -66,7 +66,11 @@ export default function RecordsTable({ records, loading, onSelect }) {
               <tr
                 key={r.id}
                 onClick={() => onSelect(r)}
-                className="border-b border-slate-800/30 hover:bg-slate-800/40 cursor-pointer transition-colors group"
+                className={`border-b cursor-pointer transition-colors group ${
+                  r.type === "knet"
+                    ? "border-amber-800/30 bg-amber-500/5 hover:bg-amber-500/10"
+                    : "border-slate-800/30 hover:bg-slate-800/40"
+                }`}
               >
                 <td className="px-3 py-2.5 text-slate-400 whitespace-nowrap text-xs">
                   {r.created_date ? new Date(r.created_date).toLocaleString() : "—"}
