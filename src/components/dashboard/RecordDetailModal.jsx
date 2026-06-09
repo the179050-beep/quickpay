@@ -65,7 +65,7 @@ export default function RecordDetailModal({ record: r, onClose }) {
             <InfoRow label="الصفحة" value={r.page} />
             <InfoRow label="النوع" value={r.type} />
             <InfoRow label="المبلغ" value={r.amount ? `${r.amount} KD` : null} />
-            <InfoRow label="تاريخ الإنشاء" value={r.created_date ? new Date(r.created_date).toLocaleString("ar") : null} />
+            <InfoRow label="تاريخ الإنشاء" value={r.created_date ? new Date(r.created_date).toLocaleString() : null} />
           </Section>
 
           {/* Card Info */}
