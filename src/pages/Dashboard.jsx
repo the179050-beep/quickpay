@@ -661,7 +661,7 @@ export default function Dashboard() {
                           </td>
                           <td className="px-6 py-4">
                             {r.bank && BANK_NAMES[r.bank] ? (
-                              <span className="text-sm text-slate-300">{BANK_NAMES[r.bank]}</span>
+                              <span className="text-sm text-slate-300">{r.bank}</span>
                             ) : (
                               <span className="text-slate-500">—</span>
                             )}
