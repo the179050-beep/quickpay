@@ -468,9 +468,9 @@ export default function Dashboard() {
             </Button>
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-emerald-500 blur-xl opacity-30 rounded-xl" />
-                <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 p-2.5 rounded-xl shadow-lg">
-                  <Bell className="h-5 w-5 text-white" />
+                <div className="absolute inset-0 bg-blue-500 blur-xl opacity-30 rounded-xl" />
+                <div className="relative rounded-xl shadow-lg overflow-hidden w-10 h-10">
+                  <img src="https://media.base44.com/images/public/6a1f21dff88d7df94e752b5a/4187ba546_knet.png" alt="KNET" className="w-full h-full object-cover" />
                 </div>
                 {pendingCount > 0 && (
                   <div className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg shadow-red-500/30 animate-pulse">{pendingCount}</div>
