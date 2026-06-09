@@ -6,6 +6,7 @@ import RecordsTable from "@/components/dashboard/RecordsTable";
 import RecordDetailModal from "@/components/dashboard/RecordDetailModal";
 import DashboardFilters from "@/components/dashboard/DashboardFilters";
 import { useAuth } from "@/lib/AuthContext";
+import { Bell, RefreshCw, Activity } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const [filters, setFilters] = useState({ type: "", page: "", step_reached: "", date: "" });
   const [loading, setLoading] = useState(true);
   const [prevCount, setPrevCount] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const playNotificationSound = () => {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -45,6 +47,13 @@ export default function Dashboard() {
     setLoading(false);
   }, [prevCount]);
 
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchRecords();
+    setIsRefreshing(false);
+    toast.success("Data refreshed");
+  };
+
   useEffect(() => {
     fetchRecords();
     const interval = setInterval(fetchRecords, 5000);
@@ -62,39 +71,60 @@ export default function Dashboard() {
 
   if (!user || user.role !== "admin") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white">
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
         <div className="text-center">
           <div className="text-5xl mb-4">🔒</div>
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-gray-400">Admin access required.</p>
+          <p className="text-slate-400">Admin access required.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 md:p-6" dir="ltr">
-      <div className="max-w-[1600px] mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Payment Dashboard</h1>
-            <p className="text-gray-400 text-sm mt-1">Real-time monitoring · auto-refresh every 5s</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white" dir="ltr">
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-500/15 to-teal-500/10 blur-3xl" />
+        <div className="absolute top-1/2 right-1/4 h-64 w-64 rounded-full bg-gradient-to-r from-cyan-500/10 to-emerald-500/5 blur-3xl" />
+        <div className="absolute -bottom-48 -right-32 h-[500px] w-[500px] rounded-full bg-gradient-to-tl from-cyan-500/10 to-emerald-500/5 blur-3xl" />
+      </div>
+
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-xl shadow-lg shadow-black/20">
+        <div className="flex items-center justify-between px-6 py-4 max-w-[1600px] mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 blur-lg opacity-40 rounded-xl" />
+              <div className="relative bg-gradient-to-br from-emerald-600 to-teal-600 p-2.5 rounded-xl shadow-lg">
+                <Bell className="h-5 w-5 text-white" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                Payment Dashboard
+              </h1>
+              <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block" />
+                Live · auto-refresh every 5s
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block" />
-            <span className="text-green-400 text-sm font-medium">Live</span>
-          </div>
+          <button
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-emerald-400 transition-colors text-sm"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
         </div>
+      </header>
 
+      <div className="relative z-10 p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
         <StatsCards records={records} />
-        <DashboardFilters filters={filters} setFilters={setFilters} />
-
-        <RecordsTable
-          records={filtered}
-          loading={loading}
-          onSelect={setSelectedRecord}
-        />
+        <DashboardFilters filters={filters} setFilters={setFilters} filtered={filtered} />
+        <RecordsTable records={filtered} loading={loading} onSelect={setSelectedRecord} />
       </div>
 
       {selectedRecord && (
