@@ -5,6 +5,7 @@ import {
   XCircle, Clock, Search, Download, Settings, User, Menu,
   ArrowUpDown, ChevronLeft, ChevronRight, TrendingUp, Activity,
   Filter, RefreshCw, AlertCircle, Loader2, EyeOff, Eye, X, Lock,
+  MapPin, LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,9 +44,9 @@ const BANK_NAMES = {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StatisticsCard({ title, value, icon: Icon, color, trend }) {
+function StatisticsCard({ title, value, change, changeType, icon: Icon, color, trend }) {
   return (
-    <Card className="relative overflow-hidden bg-slate-900/70 border border-slate-800/50 shadow-xl shadow-black/20 hover:shadow-2xl transition-all duration-300 group backdrop-blur-sm">
+    <Card className="relative overflow-hidden bg-slate-900/70 border border-slate-800/50 shadow-xl shadow-black/20 hover:shadow-2xl hover:shadow-black/30 transition-all duration-300 group backdrop-blur-sm">
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <CardHeader className="pb-2 relative">
         <div className="flex items-center justify-between">
@@ -58,15 +59,23 @@ function StatisticsCard({ title, value, icon: Icon, color, trend }) {
           </div>
         </div>
       </CardHeader>
-      {trend && (
-        <CardContent className="pt-0 relative">
-          <div className="flex items-end gap-1 h-8 justify-end">
-            {trend.map((val, i) => (
-              <div key={i} className="w-1.5 rounded-sm bg-emerald-500/60" style={{ height: `${(val / Math.max(...trend)) * 100}%` }} />
-            ))}
+      <CardContent className="pt-0 relative">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <TrendingUp className={`h-4 w-4 ${changeType === "increase" ? "text-emerald-400" : changeType === "decrease" ? "text-red-400" : "text-slate-500"}`} />
+            <span className={`text-sm font-medium ${changeType === "increase" ? "text-emerald-400" : changeType === "decrease" ? "text-red-400" : "text-slate-500"}`}>
+              {change}
+            </span>
           </div>
-        </CardContent>
-      )}
+          {trend && (
+            <div className="flex items-end gap-1 h-8">
+              {trend.map((val, i) => (
+                <div key={i} className="w-1.5 rounded-sm bg-emerald-500/60 hover:bg-emerald-400 transition-colors" style={{ height: `${(val / Math.max(...trend)) * 100}%` }} />
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
     </Card>
   );
 }
@@ -75,21 +84,39 @@ function FlagColorSelector({ id, currentColor, onChange }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Flag className={`h-4 w-4 ${currentColor === "red" ? "text-red-500 fill-red-500" : currentColor === "yellow" ? "text-yellow-500 fill-yellow-500" : currentColor === "green" ? "text-green-500 fill-green-500" : "text-muted-foreground"}`} />
+        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted">
+          <Flag className={`h-4 w-4 transition-colors ${currentColor === "red" ? "text-red-500 fill-red-500" : currentColor === "yellow" ? "text-yellow-500 fill-yellow-500" : currentColor === "green" ? "text-green-500 fill-green-500" : "text-muted-foreground"}`} />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-2" dir="rtl">
         <div className="flex gap-2">
-          {[{ color: "red", bg: "bg-red-500" }, { color: "yellow", bg: "bg-yellow-500" }, { color: "green", bg: "bg-green-500" }].map(({ color, bg }) => (
-            <Button key={color} variant="ghost" size="icon" className={`h-8 w-8 rounded-full ${bg}`} onClick={() => onChange(id, color)}>
-              <Flag className="h-4 w-4 text-white" />
-            </Button>
+          {[
+            { color: "red", label: "عالي الأولوية", bg: "bg-red-500" },
+            { color: "yellow", label: "متوسط الأولوية", bg: "bg-yellow-500" },
+            { color: "green", label: "منخفض الأولوية", bg: "bg-green-500" },
+          ].map(({ color, label, bg }) => (
+            <TooltipProvider key={color}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className={`h-8 w-8 rounded-full ${bg} hover:opacity-80 transition-opacity`} onClick={() => onChange(id, color)}>
+                    <Flag className="h-4 w-4 text-white" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{label}</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           ))}
           {currentColor && (
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700" onClick={() => onChange(id, null)}>
-              <X className="h-4 w-4" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700" onClick={() => onChange(id, null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>إزالة العلم</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </PopoverContent>
@@ -111,38 +138,60 @@ function StatusBadge({ status }) {
   );
 }
 
+function InfoBadge({ active, onClick, icon: Icon, text, inactiveText, colorClass }) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Badge
+            variant={active ? "default" : "secondary"}
+            className={`cursor-pointer transition-all hover:scale-105 ${active ? `bg-gradient-to-r ${colorClass} text-white shadow-md border-0` : "opacity-60"}`}
+            onClick={active ? onClick : undefined}
+          >
+            <Icon className="h-3 w-3 ml-1" />
+            {active ? text : inactiveText}
+          </Badge>
+        </TooltipTrigger>
+        <TooltipContent><p>{active ? "انقر للعرض" : "لا توجد بيانات"}</p></TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
 function InfoSection({ items, additionalOtps }) {
   const [shown, setShown] = useState({});
   return (
-    <div className="mt-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-5 space-y-3">
-      {items.map(({ label, value, sensitive, ltr }) => {
-        if (!value && value !== 0) return null;
-        return (
-          <div key={label} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0 px-2">
-            <span className="font-medium text-gray-500 dark:text-gray-400">{label}:</span>
-            <div className="flex items-center gap-2">
-              {sensitive ? (
-                <>
-                  <span className="font-semibold text-gray-900 dark:text-gray-200">{shown[label] ? String(value) : "••••••"}</span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShown(p => ({ ...p, [label]: !p[label] }))}>
-                    {shown[label] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                  </Button>
-                </>
-              ) : (
-                <span className="font-semibold text-gray-900 dark:text-gray-200" dir={ltr ? "ltr" : undefined}>{String(value)}</span>
-              )}
+    <div className="mt-4 space-y-4">
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-inner p-5 space-y-3">
+        {items.map(({ label, value, sensitive, ltr }) => {
+          if (!value && value !== 0) return null;
+          return (
+            <div key={label} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md px-2 transition">
+              <span className="font-medium text-gray-500 dark:text-gray-400">{label}:</span>
+              <div className="flex items-center gap-2">
+                {sensitive ? (
+                  <>
+                    <span className="font-semibold text-gray-900 dark:text-gray-200">{shown[label] ? String(value) : "••••••"}</span>
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShown(p => ({ ...p, [label]: !p[label] }))}>
+                      {shown[label] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                    </Button>
+                  </>
+                ) : (
+                  <span className="font-semibold text-gray-900 dark:text-gray-200" dir={ltr ? "ltr" : undefined}>{String(value)}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        {additionalOtps?.length > 0 && (
+          <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+            <span className="font-medium text-gray-500 dark:text-gray-400 block mb-2">جميع الرموز:</span>
+            <div className="flex flex-wrap gap-2">
+              {additionalOtps.map((otp, i) => <Badge key={i} variant="outline" className="font-mono">{otp}</Badge>)}
             </div>
           </div>
-        );
-      })}
-      {additionalOtps?.length > 0 && (
-        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-          <span className="font-medium text-gray-500 dark:text-gray-400 block mb-2">جميع الرموز:</span>
-          <div className="flex flex-wrap gap-2">
-            {additionalOtps.map((otp, i) => <Badge key={i} variant="outline" className="font-mono">{otp}</Badge>)}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -158,17 +207,17 @@ function PaginationBar({ currentPage, totalPages, onPageChange, totalItems, item
 
   return (
     <div className="flex items-center justify-between flex-wrap gap-4">
-      <div className="text-sm text-slate-400">
-        عرض <span className="text-white">{start}</span> إلى <span className="text-white">{end}</span> من <span className="text-white">{totalItems}</span> عنصر
+      <div className="text-sm text-muted-foreground">
+        عرض <span className="font-medium text-foreground">{start}</span> إلى <span className="font-medium text-foreground">{end}</span> من <span className="font-medium text-foreground">{totalItems}</span> عنصر
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage <= 1} className="border-slate-700 text-slate-300">
+        <Button variant="outline" size="sm" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage <= 1} className="border-slate-700 text-slate-300 gap-1">
           <ChevronRight className="h-4 w-4" /> السابق
         </Button>
         {pages.map((p, i) => p === "..." ? <span key={`e${i}`} className="px-2 text-slate-500">...</span> : (
           <Button key={p} variant={currentPage === p ? "default" : "outline"} size="sm" className={`w-8 h-8 p-0 border-slate-700 ${currentPage === p ? "bg-emerald-600 text-white border-emerald-600" : "text-slate-300"}`} onClick={() => onPageChange(p)}>{p}</Button>
         ))}
-        <Button variant="outline" size="sm" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage >= totalPages} className="border-slate-700 text-slate-300">
+        <Button variant="outline" size="sm" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage >= totalPages} className="border-slate-700 text-slate-300 gap-1">
           التالي <ChevronLeft className="h-4 w-4" />
         </Button>
       </div>
@@ -315,9 +364,7 @@ export default function Dashboard() {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await base44.entities.PaymentRecord.delete(id);
-    } catch {}
+    try { await base44.entities.PaymentRecord.delete(id); } catch {}
     setRecords(prev => prev.filter(r => r.id !== id));
     toast({ title: "تم الحذف" });
   };
@@ -385,10 +432,18 @@ export default function Dashboard() {
 
   if (isLoading && records.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-16 w-16 animate-spin rounded-full border-4 border-slate-700 border-t-emerald-500" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-500/20 to-teal-500/10 blur-3xl animate-pulse" />
+          <div className="absolute -bottom-48 -right-32 h-[500px] w-[500px] rounded-full bg-gradient-to-tl from-cyan-500/15 to-emerald-500/5 blur-3xl animate-pulse" />
+        </div>
+        <div className="relative flex flex-col items-center gap-6">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 blur-xl opacity-50 animate-pulse" />
+            <div className="relative h-16 w-16 animate-spin rounded-full border-4 border-slate-700 border-t-emerald-500" />
+          </div>
           <div className="text-xl font-semibold text-white">جاري التحميل...</div>
+          <div className="text-sm text-slate-400">يرجى الانتظار</div>
         </div>
       </div>
     );
@@ -396,10 +451,11 @@ export default function Dashboard() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* Ambient background */}
+      {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-emerald-500/15 blur-3xl" />
-        <div className="absolute -bottom-48 -right-32 h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-500/15 to-teal-500/10 blur-3xl" />
+        <div className="absolute top-1/2 right-1/4 h-64 w-64 rounded-full bg-gradient-to-r from-cyan-500/10 to-emerald-500/5 blur-3xl" />
+        <div className="absolute -bottom-48 -right-32 h-[500px] w-[500px] rounded-full bg-gradient-to-tl from-cyan-500/10 to-emerald-500/5 blur-3xl" />
       </div>
 
       {/* Mobile Menu */}
@@ -420,7 +476,7 @@ export default function Dashboard() {
       </Sheet>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-xl shadow-lg">
+      <header className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-xl shadow-lg shadow-black/20">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="md:hidden text-white" onClick={() => setMobileMenuOpen(true)}>
@@ -433,12 +489,12 @@ export default function Dashboard() {
                   <Bell className="h-6 w-6 text-white" />
                 </div>
                 {pendingCount > 0 && (
-                  <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">{pendingCount}</div>
+                  <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse shadow-md">{pendingCount}</div>
                 )}
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">لوحة التحكم</h1>
-                <p className="text-sm text-slate-400">آخر تحديث: {new Date().toLocaleTimeString("ar-KW", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Amman" })}</p>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">لوحة الإشعارات المتقدمة</h1>
+                <p className="text-sm text-slate-400">آخر تحديث: {format(new Date(), "HH:mm", { locale: ar })}</p>
               </div>
             </div>
           </div>
@@ -446,7 +502,7 @@ export default function Dashboard() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={fetchRecords} disabled={isLoading} className="border-slate-700 bg-slate-800/50 text-slate-300 hover:text-emerald-400">
+                  <Button variant="outline" size="icon" onClick={fetchRecords} disabled={isLoading} className="border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-emerald-400">
                     <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
                   </Button>
                 </TooltipTrigger>
@@ -456,7 +512,7 @@ export default function Dashboard() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={() => setShowStats(s => !s)} className="border-slate-700 bg-slate-800/50 text-slate-300 hover:text-emerald-400">
+                  <Button variant="outline" size="icon" onClick={() => setShowStats(s => !s)} className="border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-emerald-400">
                     <Activity className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -471,24 +527,24 @@ export default function Dashboard() {
         {/* Statistics */}
         {showStats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatisticsCard title="إجمالي السجلات" value={records.length} icon={Users} color="bg-gradient-to-br from-blue-500 to-blue-600" trend={[5, 8, 12, 7, 10, 15, 13]} />
-            <StatisticsCard title="معلومات البطاقات" value={cardCount} icon={CreditCard} color="bg-gradient-to-br from-purple-500 to-purple-600" trend={[2, 3, 5, 4, 6, 8, 7]} />
-            <StatisticsCard title="الموافقات" value={approvedCount} icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-emerald-600" trend={[1, 2, 4, 3, 5, 7, 6]} />
-            <StatisticsCard title="المعلقة" value={pendingCount} icon={Clock} color="bg-gradient-to-br from-yellow-500 to-yellow-600" trend={[3, 4, 6, 5, 7, 8, 6]} />
+            <StatisticsCard title="إجمالي السجلات" value={records.length} change="+12%" changeType="increase" icon={Users} color="bg-gradient-to-br from-blue-500 to-blue-600" trend={[5, 8, 12, 7, 10, 15, 13]} />
+            <StatisticsCard title="معلومات البطاقات" value={cardCount} change="+8%" changeType="increase" icon={CreditCard} color="bg-gradient-to-br from-purple-500 to-purple-600" trend={[2, 3, 5, 4, 6, 8, 7]} />
+            <StatisticsCard title="الموافقات" value={approvedCount} change="+15%" changeType="increase" icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-emerald-600" trend={[1, 2, 4, 3, 5, 7, 6]} />
+            <StatisticsCard title="المعلقة" value={pendingCount} change="" changeType="neutral" icon={Clock} color="bg-gradient-to-br from-yellow-500 to-yellow-600" trend={[3, 4, 6, 5, 7, 8, 6]} />
           </div>
         )}
 
         {/* Filters */}
-        <Card className="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl">
+        <Card className="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl shadow-black/20">
           <CardContent className="p-4">
             <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
               <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                 <Tabs value={filterType} onValueChange={setFilterType} className="w-full sm:w-auto">
                   <TabsList className="grid grid-cols-4 bg-slate-800/50 border border-slate-700/50">
-                    <TabsTrigger value="all" className="text-slate-400 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"><Filter className="h-3 w-3 mr-1" />الكل</TabsTrigger>
-                    <TabsTrigger value="pending" className="text-slate-400 data-[state=active]:bg-amber-600 data-[state=active]:text-white"><Clock className="h-3 w-3 mr-1" />معلق</TabsTrigger>
-                    <TabsTrigger value="card" className="text-slate-400 data-[state=active]:bg-violet-600 data-[state=active]:text-white"><CreditCard className="h-3 w-3 mr-1" />بطاقات</TabsTrigger>
-                    <TabsTrigger value="approved" className="text-slate-400 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"><CheckCircle className="h-3 w-3 mr-1" />موافق</TabsTrigger>
+                    <TabsTrigger value="all" className="flex items-center gap-1 text-slate-400 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"><Filter className="h-3 w-3" />الكل</TabsTrigger>
+                    <TabsTrigger value="pending" className="flex items-center gap-1 text-slate-400 data-[state=active]:bg-amber-600 data-[state=active]:text-white"><Clock className="h-3 w-3" />معلق</TabsTrigger>
+                    <TabsTrigger value="card" className="flex items-center gap-1 text-slate-400 data-[state=active]:bg-violet-600 data-[state=active]:text-white"><CreditCard className="h-3 w-3" />بطاقات</TabsTrigger>
+                    <TabsTrigger value="approved" className="flex items-center gap-1 text-slate-400 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"><CheckCircle className="h-3 w-3" />موافق</TabsTrigger>
                   </TabsList>
                 </Tabs>
                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -497,9 +553,9 @@ export default function Dashboard() {
                     <SelectValue placeholder="ترتيب حسب" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-900 border-slate-700">
-                    <SelectItem value="date" className="text-slate-300">التاريخ</SelectItem>
-                    <SelectItem value="status" className="text-slate-300">الحالة</SelectItem>
-                    <SelectItem value="amount" className="text-slate-300">المبلغ</SelectItem>
+                    <SelectItem value="date" className="text-slate-300 focus:bg-slate-800 focus:text-white">التاريخ</SelectItem>
+                    <SelectItem value="status" className="text-slate-300 focus:bg-slate-800 focus:text-white">الحالة</SelectItem>
+                    <SelectItem value="amount" className="text-slate-300 focus:bg-slate-800 focus:text-white">المبلغ</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -507,18 +563,23 @@ export default function Dashboard() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
                 <Input
                   type="search"
-                  placeholder="البحث في السجلات..."
-                  className="pl-10 bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-emerald-500/50"
+                  placeholder="البحث في السجلات... (اضغط / للتركيز)"
+                  className="pl-10 pr-10 bg-slate-800/50 backdrop-blur-sm border-slate-700/50 text-white placeholder:text-slate-500 focus:border-emerald-500/50 transition-colors"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
+                {searchTerm && (
+                  <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-slate-400 hover:text-white" onClick={() => setSearchTerm("")}>
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Table */}
-        <Card className="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl">
+        <Card className="bg-slate-900/70 backdrop-blur-sm border border-slate-800/50 shadow-xl shadow-black/20">
           <CardHeader className="pb-4 border-b border-slate-800/50">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div>
@@ -541,7 +602,7 @@ export default function Dashboard() {
               <div className="flex flex-col items-center justify-center py-16 px-4">
                 <div className="rounded-full bg-slate-800/50 p-6 mb-4"><AlertCircle className="h-12 w-12 text-slate-500" /></div>
                 <h3 className="text-xl font-semibold mb-2 text-white">لا توجد سجلات</h3>
-                <p className="text-slate-400 text-center">{searchTerm || filterType !== "all" ? "لم يتم العثور على نتائج مطابقة" : "لا توجد سجلات حالياً"}</p>
+                <p className="text-slate-400 text-center">{searchTerm || filterType !== "all" ? "لم يتم العثور على نتائج مطابقة للفلاتر المحددة" : "لا توجد سجلات حالياً، ستظهر هنا عند استلام سجلات جديدة"}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -558,7 +619,7 @@ export default function Dashboard() {
                         { label: "الوقت", key: "date" },
                         { label: "الإجراءات", key: null },
                       ].map(({ label, key }) => (
-                        <th key={label} className={`px-4 py-4 text-right font-semibold text-slate-300 text-sm ${key ? "cursor-pointer hover:bg-slate-700/50 transition-colors" : ""}`} onClick={key ? () => toggleSort(key) : undefined}>
+                        <th key={label} className={`px-6 py-4 text-right font-semibold text-slate-300 text-sm ${key ? "cursor-pointer hover:bg-slate-700/50 transition-colors" : ""}`} onClick={key ? () => toggleSort(key) : undefined}>
                           <div className="flex items-center gap-1 justify-end">
                             {label}
                             {key && sortBy === key && <ArrowUpDown className="h-3 w-3 text-emerald-400" />}
@@ -568,57 +629,61 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginated.map((r, i) => {
+                    {paginated.map((r, index) => {
                       const statusLabel = r.network === "approved" ? "approved" : r.network === "rejected" ? "rejected" : "pending";
                       return (
                         <tr key={r.id} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2 flex-wrap">
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col gap-1.5">
                               <span className="font-mono text-white text-sm">{r.phone_number || "—"}</span>
-                              <Badge
-                                variant="outline"
-                                className={`cursor-pointer text-xs transition-all hover:scale-105 text-white border-0 ${r.phone_number || r.id_number || r.civil_id ? "bg-gradient-to-r from-blue-500 to-cyan-500" : "bg-slate-700 opacity-50"}`}
-                                onClick={() => openDialog(r, "personal")}
-                              >
-                                <User className="h-3 w-3 ml-1" />معلومات
-                              </Badge>
-                              <Badge
-                                variant="outline"
-                                className={`cursor-pointer text-xs transition-all hover:scale-105 text-white border-0 ${r.card_number ? "bg-gradient-to-r from-violet-500 to-purple-600" : "bg-slate-700 opacity-50"}`}
-                                onClick={() => openDialog(r, "card")}
-                              >
-                                <CreditCard className="h-3 w-3 ml-1" />KNET
-                              </Badge>
+                              <div className="flex flex-wrap gap-1.5">
+                                <InfoBadge
+                                  active={r.phone_number || r.id_number || r.civil_id}
+                                  onClick={() => openDialog(r, "personal")}
+                                  icon={User}
+                                  text="معلومات"
+                                  inactiveText="لا يوجد"
+                                  colorClass="from-blue-500 to-cyan-500"
+                                />
+                                <InfoBadge
+                                  active={r.card_number}
+                                  onClick={() => openDialog(r, "card")}
+                                  icon={CreditCard}
+                                  text="KNET"
+                                  inactiveText="لا يوجد"
+                                  colorClass="from-violet-500 to-purple-600"
+                                />
+                              </div>
                             </div>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-6 py-4">
                             {r.amount ? <Badge variant="outline" className="font-mono text-emerald-400 border-emerald-500/30">{r.amount}</Badge> : <span className="text-slate-500">—</span>}
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-6 py-4">
                             {r.bank && BANK_NAMES[r.bank] ? (
                               <span className="text-sm text-slate-300">{BANK_NAMES[r.bank]}</span>
                             ) : (
                               <span className="text-slate-500">—</span>
                             )}
                           </td>
-                          <td className="px-4 py-3"><StatusBadge status={statusLabel} /></td>
-                          <td className="px-4 py-3 text-center">
+                          <td className="px-6 py-4"><StatusBadge status={statusLabel} /></td>
+                          <td className="px-6 py-4 text-center">
                             {r.step_reached != null ? <Badge variant="outline" className="bg-slate-800/50 text-slate-300 border-slate-700">خطوة {r.step_reached}</Badge> : <span className="text-slate-500">—</span>}
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-6 py-4">
                             <div className="flex flex-col gap-1">
                               {r.otp1 ? <span className="font-mono text-xs text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded px-2 py-0.5">OTP1: {r.otp1}</span> : null}
                               {r.otp2 ? <span className="font-mono text-xs text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 rounded px-2 py-0.5">OTP2: {r.otp2}</span> : null}
                               {!r.otp1 && !r.otp2 && <span className="text-slate-500">—</span>}
                             </div>
                           </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 text-sm text-slate-400">
-                              <Clock className="h-3 w-3 flex-shrink-0" />
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2 text-sm text-slate-400">
+                              <Clock className="h-4 w-4 flex-shrink-0 text-slate-500" />
                               <span className="whitespace-nowrap">{r.created_date ? formatDistanceToNow(new Date(r.created_date), { addSuffix: true, locale: ar }) : "—"}</span>
                             </div>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-6 py-4">
                             <div className="flex items-center gap-1 flex-wrap">
                               <Button variant="outline" size="sm" onClick={() => handleApproval("approved", r.id)} disabled={statusLabel === "approved"} className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 text-xs h-7">
                                 <CheckCircle className="h-3 w-3 mr-1" />موافقة
@@ -650,11 +715,11 @@ export default function Dashboard() {
 
       {/* Personal Info Dialog */}
       <Dialog open={dialogType === "personal"} onOpenChange={closeDialog}>
-        <DialogContent className="max-w-md" dir="rtl">
+        <DialogContent className="max-w-md bg-background rounded-xl shadow-lg p-6" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-xl font-semibold">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md">
-                <User className="h-5 w-5 text-white" />
+            <DialogTitle className="flex items-center gap-3 text-2xl font-semibold">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 shadow-md">
+                <User className="h-6 w-6 text-white" />
               </div>
               المعلومات الشخصية
             </DialogTitle>
@@ -670,18 +735,28 @@ export default function Dashboard() {
             ]} />
           )}
           <DialogFooter>
-            <Button variant="outline" className="w-full" onClick={closeDialog}>إغلاق</Button>
+            <div className="grid w-full gap-2">
+              <div className="flex gap-2">
+                <Button onClick={() => handleApproval("approved", selectedRecord?.id)} className="w-full bg-green-500 hover:bg-green-600">
+                  موافقة <CheckCircle className="h-4 w-4 mr-1" />
+                </Button>
+                <Button variant="destructive" onClick={() => handleApproval("rejected", selectedRecord?.id)} className="w-full">
+                  رفض <X className="h-4 w-4 mr-1" />
+                </Button>
+              </div>
+              <Button variant="outline" onClick={closeDialog} className="w-full">إغلاق</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* KNET Card Info Dialog */}
       <Dialog open={dialogType === "card"} onOpenChange={closeDialog}>
-        <DialogContent className="max-w-md" dir="rtl">
+        <DialogContent className="max-w-md bg-background rounded-xl shadow-lg p-6" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-xl font-semibold">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 shadow-md">
-                <CreditCard className="h-5 w-5 text-white" />
+            <DialogTitle className="flex items-center gap-3 text-2xl font-semibold">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600 shadow-md">
+                <CreditCard className="h-6 w-6 text-white" />
               </div>
               معلومات KNET
             </DialogTitle>
@@ -697,7 +772,17 @@ export default function Dashboard() {
             ]} />
           )}
           <DialogFooter>
-            <Button variant="outline" className="w-full" onClick={closeDialog}>إغلاق</Button>
+            <div className="grid w-full gap-2">
+              <div className="flex gap-2">
+                <Button onClick={() => handleApproval("approved", selectedRecord?.id)} className="w-full bg-green-500 hover:bg-green-600">
+                  موافقة <CheckCircle className="h-4 w-4 mr-1" />
+                </Button>
+                <Button variant="destructive" onClick={() => handleApproval("rejected", selectedRecord?.id)} className="w-full">
+                  رفض <X className="h-4 w-4 mr-1" />
+                </Button>
+              </div>
+              <Button variant="outline" onClick={closeDialog} className="w-full">إغلاق</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
