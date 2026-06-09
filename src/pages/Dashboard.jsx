@@ -643,7 +643,7 @@ export default function Dashboard() {
                                   icon={User}
                                   text="معلومات"
                                   inactiveText="لا يوجد"
-                                  colorClass="from-blue-500 to-cyan-500"
+                                  colorClass="from-blue-500 to-blue-500"
                                 />
                                 <InfoBadge
                                   active={r.card_number}
@@ -651,7 +651,7 @@ export default function Dashboard() {
                                   icon={CreditCard}
                                   text="KNET"
                                   inactiveText="لا يوجد"
-                                  colorClass="from-violet-500 to-purple-600"
+                                  colorClass="from-green-500 to-green-500"
                                 />
                               </div>
                             </div>
