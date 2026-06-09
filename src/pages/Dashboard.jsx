@@ -636,7 +636,7 @@ export default function Dashboard() {
                                  icon={User}
                                  text="معلومات"
                                  inactiveText="لا بيانات"
-                                 colorClass="from-blue-500 to-indigo-600"
+                                 colorClass="from-violet-500 to-purple-600"
                                />
                                {r.card_number ? (
                                  <button
