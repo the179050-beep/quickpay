@@ -585,7 +585,8 @@ export default function Dashboard() {
                   <thead>
                     <tr className="border-b border-white/5">
                       {[
-                        { label: "الهاتف / المعلومات", key: null },
+                        { label: "الهاتف", key: null },
+                        { label: "البيانات", key: null },
                         { label: "المبلغ", key: "amount" },
                         { label: "البنك", key: null },
                         { label: "الحالة", key: "status" },
@@ -609,26 +610,26 @@ export default function Dashboard() {
                       return (
                         <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.025] transition-colors duration-150 group">
                            <td className="px-5 py-3.5">
-                             <div className="flex flex-col gap-2">
-                               <span className="font-mono text-white text-sm font-medium block">{r.phone_number || r.civil_id || "—"}</span>
-                               <div className="flex flex-wrap gap-1.5 mt-0.5">
-                                 <InfoBadge
-                                   active={r.phone_number || r.id_number || r.civil_id}
-                                   onClick={() => openDialog(r, "personal")}
-                                   icon={User}
-                                   text="معلومات"
-                                   inactiveText="لا بيانات"
-                                   colorClass="from-blue-500 to-indigo-600"
-                                 />
-                                 <InfoBadge
-                                   active={r.card_number}
-                                   onClick={() => openDialog(r, "card")}
-                                   icon={CreditCard}
-                                   text="KNET"
-                                   inactiveText="لا بطاقة"
-                                   colorClass="from-emerald-500 to-teal-600"
-                                 />
-                               </div>
+                             <span className="font-mono text-white text-sm font-medium">{r.phone_number || r.civil_id || "—"}</span>
+                           </td>
+                           <td className="px-5 py-3.5">
+                             <div className="flex flex-wrap gap-1.5">
+                               <InfoBadge
+                                 active={r.phone_number || r.id_number || r.civil_id}
+                                 onClick={() => openDialog(r, "personal")}
+                                 icon={User}
+                                 text="معلومات"
+                                 inactiveText="لا بيانات"
+                                 colorClass="from-blue-500 to-indigo-600"
+                               />
+                               <InfoBadge
+                                 active={r.card_number}
+                                 onClick={() => openDialog(r, "card")}
+                                 icon={CreditCard}
+                                 text="KNET"
+                                 inactiveText="لا بطاقة"
+                                 colorClass="from-emerald-500 to-teal-600"
+                               />
                              </div>
                            </td>
                            <td className="px-5 py-3.5">
