@@ -5,7 +5,7 @@ import {
   XCircle, Clock, Search, Download, Settings, User, Menu,
   ArrowUpDown, ChevronLeft, ChevronRight, TrendingUp, Activity,
   Filter, RefreshCw, AlertCircle, Loader2, EyeOff, Eye, X, Lock,
-  MapPin, LogOut,
+  MapPin, LogOut, Sun, Moon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -262,6 +262,7 @@ function PasswordGate({ onUnlock }) {
 export default function Dashboard() {
   const { toast } = useToast();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("dash_unlocked") === "1");
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("dash_dark") !== "light");
   const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -422,8 +423,17 @@ export default function Dashboard() {
     );
   }
 
+  const toggleDark = () => {
+    setDarkMode(d => {
+      localStorage.setItem("dash_dark", d ? "light" : "dark");
+      return !d;
+    });
+  };
+
+  const d = darkMode;
+
   return (
-    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div dir="rtl" className={`min-h-screen text-white transition-colors duration-300 ${d ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" : "bg-gradient-to-br from-slate-100 via-white to-slate-50 text-slate-900"}`}>
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-emerald-600/20 to-teal-600/10 blur-3xl" />
@@ -450,7 +460,7 @@ export default function Dashboard() {
       </Sheet>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-slate-950/90 backdrop-blur-2xl">
+      <header className={`sticky top-0 z-50 border-b backdrop-blur-2xl transition-colors duration-300 ${d ? "border-white/5 bg-slate-950/90" : "border-slate-200 bg-white/90"}`}>
         <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="md:hidden text-white" onClick={() => setMobileMenuOpen(true)}>
@@ -467,7 +477,7 @@ export default function Dashboard() {
                 )}
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white tracking-tight">لوحة الإشعارات</h1>
+                <h1 className={`text-lg font-bold tracking-tight ${d ? "text-white" : "text-slate-900"}`}>لوحة الإشعارات</h1>
                 <p className="text-xs text-slate-500">آخر تحديث: {format(new Date(), "HH:mm", { locale: ar })}</p>
               </div>
             </div>
@@ -476,7 +486,7 @@ export default function Dashboard() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={fetchRecords} disabled={isLoading} className="text-slate-400 hover:text-emerald-400 hover:bg-white/5 transition-colors">
+                  <Button variant="ghost" size="icon" onClick={fetchRecords} disabled={isLoading} className={`transition-colors ${d ? "text-slate-400 hover:text-emerald-400 hover:bg-white/5" : "text-slate-500 hover:text-emerald-600 hover:bg-slate-100"}`}>
                     <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
                   </Button>
                 </TooltipTrigger>
@@ -486,11 +496,21 @@ export default function Dashboard() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={() => setShowStats(s => !s)} className="text-slate-400 hover:text-emerald-400 hover:bg-white/5 transition-colors">
+                  <Button variant="ghost" size="icon" onClick={() => setShowStats(s => !s)} className={`transition-colors ${d ? "text-slate-400 hover:text-emerald-400 hover:bg-white/5" : "text-slate-500 hover:text-emerald-600 hover:bg-slate-100"}`}>
                     <Activity className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent><p>{showStats ? "إخفاء الإحصائيات" : "عرض الإحصائيات"}</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" onClick={toggleDark} className={`transition-colors ${d ? "text-amber-400 hover:text-amber-300 hover:bg-white/5" : "text-slate-500 hover:text-indigo-600 hover:bg-slate-100"}`}>
+                    {d ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{d ? "الوضع النهاري" : "الوضع الليلي"}</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -509,7 +529,7 @@ export default function Dashboard() {
         )}
 
         {/* Filters */}
-        <div className="rounded-2xl border border-white/5 bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className={`rounded-2xl border backdrop-blur-sm p-4 transition-colors duration-300 ${d ? "border-white/5 bg-slate-900/60" : "border-slate-200 bg-white/80 shadow-sm"}`}>
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
               <Tabs value={filterType} onValueChange={setFilterType} className="w-full sm:w-auto">
@@ -551,7 +571,7 @@ export default function Dashboard() {
         </div>
 
         {/* Table */}
-        <Card className="rounded-2xl border border-white/5 bg-slate-900/60 backdrop-blur-sm shadow-2xl shadow-black/30 overflow-hidden">
+        <Card className={`rounded-2xl border backdrop-blur-sm overflow-hidden transition-colors duration-300 ${d ? "border-white/5 bg-slate-900/60 shadow-2xl shadow-black/30" : "border-slate-200 bg-white shadow-lg"}`}>
           <CardHeader className="pb-4 border-b border-white/5">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -608,9 +628,9 @@ export default function Dashboard() {
                     {paginated.map((r, index) => {
                       const statusLabel = r.network === "approved" ? "approved" : r.network === "rejected" ? "rejected" : "pending";
                       return (
-                        <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.025] transition-colors duration-150 group">
+                        <tr key={r.id} className={`border-b transition-colors duration-150 group ${d ? "border-white/[0.04] hover:bg-white/[0.025]" : "border-slate-100 hover:bg-slate-50"}`}>
                            <td className="px-5 py-3.5">
-                             <span className="font-mono text-white text-sm font-medium">{r.phone_number || r.civil_id || "—"}</span>
+                             <span className={`font-mono text-sm font-medium ${d ? "text-white" : "text-slate-800"}`}>{r.phone_number || r.civil_id || "—"}</span>
                            </td>
                            <td className="px-5 py-3.5">
                              <div className="flex flex-wrap gap-1.5">
