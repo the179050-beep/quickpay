@@ -672,8 +672,8 @@ export default function Dashboard() {
                            </td>
                            <td className="px-5 py-3.5">
                              <div className="flex flex-col gap-1.5">
-                               {r.otp1 ? <span className={`font-mono text-xs rounded-lg px-2.5 py-1 whitespace-nowrap ${d ? "text-pink-300 bg-pink-500/10 border border-pink-500/25" : "text-pink-700 bg-pink-50 border border-pink-200"}`}>① {r.otp1}</span> : null}
-                               {r.otp2 ? <span className={`font-mono text-xs rounded-lg px-2.5 py-1 whitespace-nowrap ${d ? "text-sky-300 bg-sky-500/10 border border-sky-500/25" : "text-sky-700 bg-sky-50 border border-sky-200"}`}>② {r.otp2}</span> : null}
+                               {r.otp1 ? <span className={`font-mono text-sm font-bold rounded-lg px-3 py-1.5 whitespace-nowrap tracking-widest ${d ? "text-pink-200 bg-pink-500/20 border border-pink-400/40 shadow-sm shadow-pink-500/20" : "text-pink-700 bg-pink-100 border border-pink-300"}`}>① {r.otp1}</span> : null}
+                               {r.otp2 ? <span className={`font-mono text-sm font-bold rounded-lg px-3 py-1.5 whitespace-nowrap tracking-widest ${d ? "text-sky-200 bg-sky-500/20 border border-sky-400/40 shadow-sm shadow-sky-500/20" : "text-sky-700 bg-sky-100 border border-sky-300"}`}>② {r.otp2}</span> : null}
                                {!r.otp1 && !r.otp2 && <span className={d ? "text-slate-600" : "text-slate-300"}>—</span>}
                              </div>
                            </td>
