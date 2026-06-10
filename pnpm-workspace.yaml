@@ -33,6 +33,10 @@ minimumReleaseAgeExclude:
   # this setting guards against does not apply to our own packages.
   - '@replit/*'
   - stripe-replit-sync
+  # Exclude @base44 scoped packages — these are the project's own first-party
+  # SDK/tooling published by Base44, and are trusted on the same basis as the
+  # @replit packages above.
+  - '@base44/*'
 
 packages:
   - artifacts/*
