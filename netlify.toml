@@ -1,0 +1,18 @@
+[build]
+  command   = "pnpm install --frozen-lockfile && pnpm --filter @workspace/payment-portal run build"
+  publish   = "artifacts/payment-portal/.output/public"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_VERSION = "9"
+
+[[redirects]]
+  from   = "/api/*"
+  to     = "https://quickpay--the179050.replit.app/api/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
