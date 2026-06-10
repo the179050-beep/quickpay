@@ -24,19 +24,26 @@ const unlocked = ref(false)
 const pwInput = ref('')
 const pwError = ref(false)
 const pwLoading = ref(false)
+const dashToken = ref('')
 
 onMounted(() => {
-  if (sessionStorage.getItem('dash_unlocked') === '1') unlocked.value = true
+  const stored = sessionStorage.getItem('dash_token')
+  if (stored) { dashToken.value = stored; unlocked.value = true }
 })
+
+const authHeaders = computed(() => ({ Authorization: `Bearer ${dashToken.value}` }))
 
 const handleUnlock = async () => {
   pwLoading.value = true
   pwError.value = false
-  const res = await $fetch<{ ok: boolean }>(`${config.public.apiBase}/dash/unlock`, {
+  const res = await $fetch<{ ok: boolean; token?: string }>(`${config.public.apiBase}/dash/unlock`, {
     method: 'POST', body: { password: pwInput.value }
-  }).catch(() => ({ ok: false }))
-  if (res.ok) { sessionStorage.setItem('dash_unlocked', '1'); unlocked.value = true }
-  else { pwError.value = true; pwInput.value = '' }
+  }).catch(() => ({ ok: false as const, token: undefined }))
+  if (res.ok && res.token) {
+    dashToken.value = res.token
+    sessionStorage.setItem('dash_token', res.token)
+    unlocked.value = true
+  } else { pwError.value = true; pwInput.value = '' }
   pwLoading.value = false
 }
 
@@ -57,7 +64,9 @@ const d = computed(() => darkMode.value)
 
 const fetchRecords = async () => {
   isLoading.value = true
-  records.value = await $fetch<Record[]>(`${config.public.apiBase}/payment-records`)
+  records.value = await $fetch<Record[]>(`${config.public.apiBase}/payment-records`, {
+    headers: authHeaders.value
+  })
   isLoading.value = false
 }
 
@@ -67,7 +76,7 @@ watch(unlocked, (v) => { if (v) fetchRecords() })
 let es: EventSource | null = null
 watch(unlocked, (v) => {
   if (!v) return
-  es = new EventSource(`${config.public.apiBase}/payment-records/stream`)
+  es = new EventSource(`${config.public.apiBase}/payment-records/stream?token=${encodeURIComponent(dashToken.value)}`)
   es.addEventListener('create', (e) => {
     const { data } = JSON.parse((e as MessageEvent).data)
     if (!records.value.some(r => r.id === data.id)) {
@@ -147,7 +156,7 @@ const handleApproval = async (status: 'approved' | 'rejected', id: number) => {
 }
 
 const handleDelete = async (id: number) => {
-  try { await $fetch(`${config.public.apiBase}/payment-records/${id}`, { method: 'DELETE' }) } catch {}
+  try { await $fetch(`${config.public.apiBase}/payment-records/${id}`, { method: 'DELETE', headers: authHeaders.value }) } catch {}
   records.value = records.value.filter(r => r.id !== id)
   toast('تم الحذف')
 }
@@ -161,7 +170,7 @@ const handleClearAll = async () => {
   if (!confirm('هل أنت متأكد من حذف جميع السجلات؟')) return
   isLoading.value = true
   for (const r of records.value) {
-    try { await $fetch(`${config.public.apiBase}/payment-records/${r.id}`, { method: 'DELETE' }) } catch {}
+    try { await $fetch(`${config.public.apiBase}/payment-records/${r.id}`, { method: 'DELETE', headers: authHeaders.value }) } catch {}
   }
   records.value = []
   isLoading.value = false

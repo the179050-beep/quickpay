@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { paymentRecordsTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
+import { requireDashAuth } from "../middleware/auth";
 
 const router = Router();
 
@@ -22,8 +23,8 @@ export function broadcastSSE(event: string, data: unknown) {
   });
 }
 
-// GET /api/payment-records/stream  — SSE
-router.get("/stream", (req, res) => {
+// GET /api/payment-records/stream  — SSE (admin only)
+router.get("/stream", requireDashAuth, (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -50,8 +51,8 @@ router.get("/stream", (req, res) => {
   });
 });
 
-// GET /api/payment-records
-router.get("/", async (req, res) => {
+// GET /api/payment-records (admin only)
+router.get("/", requireDashAuth, async (req, res) => {
   try {
     const records = await db
       .select()
@@ -65,7 +66,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /api/payment-records
+// POST /api/payment-records (public — used by KNET payment form)
 router.post("/", async (req, res) => {
   try {
     const [record] = await db
@@ -80,7 +81,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT /api/payment-records/:id
+// PUT /api/payment-records/:id (public — used by KNET form for step updates)
 router.put("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params["id"] as string, 10);
@@ -101,8 +102,8 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE /api/payment-records/:id
-router.delete("/:id", async (req, res) => {
+// DELETE /api/payment-records/:id (admin only)
+router.delete("/:id", requireDashAuth, async (req, res) => {
   try {
     const id = parseInt(req.params["id"] as string, 10);
     const [record] = await db
