@@ -150,7 +150,7 @@ const toast = (title: string) => addNotification(title)
 
 const handleApproval = async (status: 'approved' | 'rejected', id: number) => {
   const network = status === 'approved' ? 'approved' : 'rejected'
-  await $fetch(`${config.public.apiBase}/payment-records/${id}`, { method: 'PUT', body: { network } })
+  await $fetch(`${config.public.apiBase}/payment-records/${id}`, { method: 'PATCH', body: { network }, headers: authHeaders.value })
   records.value = records.value.map(r => r.id === id ? { ...r, network } : r)
   toast(status === 'approved' ? 'تمت الموافقة' : 'تم الرفض')
 }
@@ -162,7 +162,7 @@ const handleDelete = async (id: number) => {
 }
 
 const handleFlagChange = async (id: number, color: string | null) => {
-  await $fetch(`${config.public.apiBase}/payment-records/${id}`, { method: 'PUT', body: { bank: color || '' } })
+  await $fetch(`${config.public.apiBase}/payment-records/${id}`, { method: 'PATCH', body: { bank: color || '' }, headers: authHeaders.value })
   records.value = records.value.map(r => r.id === id ? { ...r, bank: color || undefined } : r)
 }
 

