@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/mobile/"
+title = "Zain Kuwait Payment Mobile"
+version = "1.0.0"
+id = "artifacts/payment-portal-mobile"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/mobile/" ]
+localPort = 25707
+
+[services.development]
+run = "pnpm --filter @workspace/payment-portal-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/payment-portal-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/payment-portal-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "25707"
+BASE_PATH = "/mobile/"
