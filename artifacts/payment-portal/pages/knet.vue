@@ -163,6 +163,9 @@ const years = Array.from({ length: 14 }, (_, i) => String(2024 + i))
 const knetCss = `
 @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap');
 * { font-family: Almarai, sans-serif !important; }
+select {
+  font-size: 13px !important;
+}
 #knet-container { width: 100%; max-width: 460px; margin: 0 auto; padding: 0 4px 10px; box-sizing: border-box; position: relative; }
 #knet-content-block { width: 100%; }
 .knet-form-card { background: #fff; padding: 10px; border: 2px solid #8f8f90; border-radius: 15px; margin-bottom: 14px; box-shadow: 0 0 6px rgba(0,0,0,0.25); margin-top: 14px; overflow: hidden; }
