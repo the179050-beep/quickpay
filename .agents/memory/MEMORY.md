@@ -1,0 +1,3 @@
+- [Nuxt version pin](nuxt-version-pin.md) — Nuxt ≥3.15 breaks ssr:false SPA mode; pin to 3.13.2 in this project
+- [Nuxt Tailwind setup](nuxt-tailwind-setup.md) — use @nuxtjs/tailwindcss + tailwindcss v3; @tailwindcss/nuxt (v4) not in Replit registry
+- [Nuxt vueuse module](nuxt-vueuse-module.md) — do NOT add @vueuse/nuxt as a Nuxt module; import from @vueuse/core directly

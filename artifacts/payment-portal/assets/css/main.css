@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent: 325.7 65.9% 49.4%;
+  --accent-foreground: 210 40% 98%;
+  --background: 0 0% 98%;
+  --border: 0 0% 81.6%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --foreground: 0 0% 0%;
+  --input: 214.3 31.8% 91.4%;
+  --muted: 0 0% 91.8%;
+  --muted-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 98%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 290.9 86.9% 12%;
+  --primary-foreground: 0 0% 98%;
+  --radius: 0.38rem;
+  --ring: 325.7 65.9% 49.4%;
+  --secondary: 0 0% 94.1%;
+  --secondary-foreground: 222.2 84% 4.9%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Zain", system-ui, sans-serif;
+  }
+}
+
+* {
+  font-family: "Zain", system-ui, sans-serif !important;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lds-spinner {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.font-body {
+  font-family: "Zain", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+::-webkit-scrollbar-thumb { background: hsl(var(--primary) / 0.4); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.7); }
+
+input, select, textarea {
+  font-size: 16px !important;
+}

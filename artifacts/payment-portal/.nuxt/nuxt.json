@@ -1,0 +1,9 @@
+{
+  "_hash": "ZuUxIPONv519bP8LtvEyAI7ZgIYL6ZPLTnJ0g9iJt4k",
+  "project": {
+    "rootDir": "/home/runner/workspace/artifacts/payment-portal"
+  },
+  "versions": {
+    "nuxt": "3.13.2"
+  }
+}
