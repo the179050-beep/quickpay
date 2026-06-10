@@ -48,7 +48,7 @@
         "../../../node_modules/.pnpm/@unhead+vue@1.11.20_vue@3.5.35_typescript@5.9.3_/node_modules/@unhead/vue"
       ],
       "@nuxt/devtools": [
-        "../../../node_modules/.pnpm/@nuxt+devtools@1.7.0_rollup@4.60.3_vite@7.3.3_@types+node@22.19.20_jiti@2.7.0_lightning_995f0f09abf063eacd821ca96870eb37/node_modules/@nuxt/devtools"
+        "../../../node_modules/.pnpm/@nuxt+devtools@1.7.0_rollup@4.60.3_vue@3.5.35_typescript@5.9.3_/node_modules/@nuxt/devtools"
       ],
       "@vue/runtime-core": [
         "../../../node_modules/.pnpm/@vue+runtime-core@3.5.35/node_modules/@vue/runtime-core"
@@ -69,10 +69,10 @@
         "../../../node_modules/.pnpm/@nuxt+schema@3.13.2_rollup@4.60.3/node_modules/@nuxt/schema"
       ],
       "nuxt": [
-        "../../../node_modules/.pnpm/nuxt@3.13.2_@parcel+watcher@2.5.6_@types+node@22.19.20_db0@0.3.4_drizzle-orm@0.45.2_@ty_fea47e5da3d9b4279ef47beec577ccec/node_modules/nuxt"
+        "../../../node_modules/.pnpm/nuxt@3.13.2_@parcel+watcher@2.5.6_@types+node@22.19.20_db0@0.3.4_drizzle-orm@0.45.2_@ty_bd0c69d5c1af65797ddb3eb0409f17dd/node_modules/nuxt"
       ],
       "#internal/nuxt/paths": [
-        "../../../node_modules/.pnpm/nuxt@3.13.2_@parcel+watcher@2.5.6_@types+node@22.19.20_db0@0.3.4_drizzle-orm@0.45.2_@ty_fea47e5da3d9b4279ef47beec577ccec/node_modules/nuxt/dist/core/runtime/nitro/paths"
+        "../../../node_modules/.pnpm/nuxt@3.13.2_@parcel+watcher@2.5.6_@types+node@22.19.20_db0@0.3.4_drizzle-orm@0.45.2_@ty_bd0c69d5c1af65797ddb3eb0409f17dd/node_modules/nuxt/dist/core/runtime/nitro/paths"
       ],
       "~": [
         "./.."
@@ -111,7 +111,7 @@
   "include": [
     "./types/nitro-nuxt.d.ts",
     "../../../node_modules/.pnpm/@nuxtjs+tailwindcss@6.14.0_magicast@0.3.5_tsx@4.21.0_yaml@2.8.4/node_modules/@nuxtjs/tailwindcss/runtime/server",
-    "../../../node_modules/.pnpm/@nuxt+devtools@1.7.0_rollup@4.60.3_vite@7.3.3_@types+node@22.19.20_jiti@2.7.0_lightning_995f0f09abf063eacd821ca96870eb37/node_modules/@nuxt/devtools/runtime/server",
+    "../../../node_modules/.pnpm/@nuxt+devtools@1.7.0_rollup@4.60.3_vue@3.5.35_typescript@5.9.3_/node_modules/@nuxt/devtools/runtime/server",
     "./types/nitro.d.ts",
     "../**/*",
     "../server/**/*"
@@ -119,7 +119,7 @@
   "exclude": [
     "../node_modules",
     "../../../node_modules",
-    "../../../node_modules/.pnpm/nuxt@3.13.2_@parcel+watcher@2.5.6_@types+node@22.19.20_db0@0.3.4_drizzle-orm@0.45.2_@ty_fea47e5da3d9b4279ef47beec577ccec/node_modules/nuxt/node_modules",
+    "../../../node_modules/.pnpm/nuxt@3.13.2_@parcel+watcher@2.5.6_@types+node@22.19.20_db0@0.3.4_drizzle-orm@0.45.2_@ty_bd0c69d5c1af65797ddb3eb0409f17dd/node_modules/nuxt/node_modules",
     "../dist"
   ]
 }

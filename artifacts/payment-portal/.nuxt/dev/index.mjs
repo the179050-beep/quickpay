@@ -1062,7 +1062,7 @@ if (!window.__NUXT_DEVTOOLS_TIME_METRIC__) {
 window.__NUXT_DEVTOOLS_TIME_METRIC__.appInit = Date.now()
 `;
 
-const _Qn7AO2I3sMmhgRaBi1z8PxIGGUfre2q1k_1pNjix2U = (function(nitro) {
+const _P6rHtCZBY6mWOyNWv10BxyIUMyR_hJboXR6f93qDHbs = (function(nitro) {
   nitro.hooks.hook("render:html", (htmlContext) => {
     htmlContext.head.push(`<script>${script}<\/script>`);
   });
@@ -1087,7 +1087,7 @@ const devReducers = {
   URL: (data) => data instanceof URL ? data.toString() : void 0
 };
 const asyncContext = getContext("nuxt-dev", { asyncContext: true, AsyncLocalStorage });
-const _vV9CztLwRm_RAcQBzoCdTYEIsq26Ykptp__cZfVzdFs = (nitroApp) => {
+const _NWYAJniEaGlzKhxIioaXAZdUsTJ73w5HAUHGEBmFxM = (nitroApp) => {
   const handler = nitroApp.h3App.handler;
   nitroApp.h3App.handler = (event) => {
     return asyncContext.callAsync({ logs: [], event }, () => handler(event));
@@ -1157,23 +1157,23 @@ function onConsoleLog(callback) {
 }
 
 const plugins = [
-  _Qn7AO2I3sMmhgRaBi1z8PxIGGUfre2q1k_1pNjix2U,
-_vV9CztLwRm_RAcQBzoCdTYEIsq26Ykptp__cZfVzdFs
+  _P6rHtCZBY6mWOyNWv10BxyIUMyR_hJboXR6f93qDHbs,
+_NWYAJniEaGlzKhxIioaXAZdUsTJ73w5HAUHGEBmFxM
 ];
 
 const assets = {
   "/index.mjs": {
     "type": "text/javascript; charset=utf-8",
-    "etag": "\"123fa-zaV+RNlfvaI/Yu7ygNs3tySUabM\"",
-    "mtime": "2026-06-10T18:25:46.633Z",
-    "size": 74746,
+    "etag": "\"12591-VPuaJeY2NhLKrZrSOTqwINkD4qU\"",
+    "mtime": "2026-06-10T18:42:41.962Z",
+    "size": 75153,
     "path": "index.mjs"
   },
   "/index.mjs.map": {
     "type": "application/json",
-    "etag": "\"45b6c-2fTmBH4MtIk7ZWo7WuuXdlN78Wk\"",
-    "mtime": "2026-06-10T18:25:46.631Z",
-    "size": 285548,
+    "etag": "\"45b7b-zWK7Y8R0RYEbSpb7kQ8g29sUepw\"",
+    "mtime": "2026-06-10T18:42:41.963Z",
+    "size": 285563,
     "path": "index.mjs.map"
   }
 };
@@ -1265,12 +1265,12 @@ const _KtPr8E = eventHandler((event) => {
   return readAsset(id);
 });
 
-const _lazy_9_nbkH = () => Promise.resolve().then(function () { return renderer$1; });
+const _lazy_58MscV = () => Promise.resolve().then(function () { return renderer$1; });
 
 const handlers = [
   { route: '', handler: _KtPr8E, lazy: false, middleware: true, method: undefined },
-  { route: '/__nuxt_error', handler: _lazy_9_nbkH, lazy: true, middleware: false, method: undefined },
-  { route: '/**', handler: _lazy_9_nbkH, lazy: true, middleware: false, method: undefined }
+  { route: '/__nuxt_error', handler: _lazy_58MscV, lazy: true, middleware: false, method: undefined },
+  { route: '/**', handler: _lazy_58MscV, lazy: true, middleware: false, method: undefined }
 ];
 
 function createNitroApp() {
