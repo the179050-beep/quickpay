@@ -11,12 +11,15 @@
     "splash": {
       "image": "./assets/images/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0A1628"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.replit.paymentportalmobile"
     },
-    "android": {},
+    "android": {
+      "package": "com.replit.paymentportalmobile"
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
