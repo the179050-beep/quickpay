@@ -6,82 +6,82 @@ const BANKS = [
   {
     value: "ABK",
     label: "Al Ahli Bank of Kuwait",
-    cardPrefixes: ["406974", "406975", "521653", "521654"],
+    cardPrefixes: ["403622", "428628", "423826"],
   },
   {
     value: "ALRAJHI",
     label: "Al Rajhi Bank",
-    cardPrefixes: ["408250", "408251", "524767", "524768"],
+    cardPrefixes: ["458838"],
   },
   {
     value: "BBK",
     label: "Bank of Bahrain and Kuwait",
-    cardPrefixes: ["406780", "406781", "519812", "519813"],
+    cardPrefixes: ["418056", "588790"],
   },
   {
     value: "BOUBYAN",
     label: "Boubyan Bank",
-    cardPrefixes: ["410161", "410162", "521900", "521901"],
+    cardPrefixes: ["470350", "490455", "490456", "404919", "450605", "426058", "431199"],
   },
   {
     value: "BURGAN",
     label: "Burgan Bank",
-    cardPrefixes: ["411390", "411391", "521634", "521635"],
+    cardPrefixes: ["468564", "402978", "403583", "415254", "450238", "540759", "49219000"],
   },
   {
     value: "CBK",
     label: "Commercial Bank of Kuwait",
-    cardPrefixes: ["406799", "406800", "525943", "525944"],
+    cardPrefixes: ["532672", "537015", "521175", "516334"],
   },
   {
     value: "Doha",
     label: "Doha Bank",
-    cardPrefixes: ["409700", "409701", "527253", "527254"],
+    cardPrefixes: ["419252"],
   },
   {
     value: "GBK",
     label: "Gulf Bank",
-    cardPrefixes: ["406401", "406402", "519212", "519213"],
+    cardPrefixes: ["526206", "531470", "531644", "531329", "517419", "517458", "531471", "559475"],
   },
   {
     value: "TAM",
     label: "TAM Bank",
-    cardPrefixes: ["401880", "401881", "526127", "526128"],
+    cardPrefixes: ["45077848", "45077849"],
   },
   {
     value: "KFH",
     label: "Kuwait Finance House",
-    cardPrefixes: ["408069", "408070", "524050", "524051"],
+    cardPrefixes: ["485602", "537016", "5326674", "450778"],
   },
   {
     value: "KIB",
     label: "Kuwait International Bank",
-    cardPrefixes: ["419521", "419522", "531730", "531731"],
+    cardPrefixes: ["409054", "406464"],
   },
   {
     value: "NBK",
     label: "National Bank of Kuwait",
-    cardPrefixes: ["409201", "409202", "516741", "516742"],
+    cardPrefixes: ["464452", "589160"],
   },
   {
     value: "Weyay",
     label: "Weyay Bank",
-    cardPrefixes: ["432985", "432986", "543210", "543211"],
+    cardPrefixes: ["46445250", "543363"],
   },
   {
     value: "QNB",
     label: "Qatar National Bank",
-    cardPrefixes: ["420067", "420068", "529147", "529148"],
+    cardPrefixes: ["521020", "524745"],
   },
   {
     value: "UNB",
     label: "Union National Bank",
-    cardPrefixes: ["414775", "414776", "528460", "528461"],
+    cardPrefixes: ["457778"],
   },
   {
     value: "WARBA",
     label: "Warba Bank",
-    cardPrefixes: ["411500", "411501", "519537", "519538"],
+    cardPrefixes: ["541350", "525528", "532749", "559459"],
   },
 ];
 
