@@ -517,10 +517,10 @@ export default function Dashboard() {
         {/* Statistics */}
         {showStats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatisticsCard title="إجمالي السجلات" value={records.length} change="+12%" changeType="increase" icon={Users} color="bg-gradient-to-br from-blue-500 to-indigo-600" accent="from-blue-500 to-indigo-600" dark={d} />
-            <StatisticsCard title="معلومات البطاقات" value={cardCount} change="+8%" changeType="increase" icon={CreditCard} color="bg-gradient-to-br from-violet-500 to-purple-600" accent="from-violet-500 to-purple-600" dark={d} />
-            <StatisticsCard title="الموافقات" value={approvedCount} change="+15%" changeType="increase" icon={CheckCircle} color="bg-gradient-to-br from-emerald-500 to-teal-600" accent="from-emerald-500 to-teal-600" dark={d} />
-            <StatisticsCard title="المعلقة" value={pendingCount} change="" changeType="neutral" icon={Clock} color="bg-gradient-to-br from-amber-500 to-orange-600" accent="from-amber-500 to-orange-600" dark={d} />
+            <StatisticsCard title="إجمالي السجلات" value={records.length} change="+12%" changeType="increase" icon={Users} color="bg-gradient-to-br from-cyan-500 to-blue-600" accent="from-cyan-500 to-blue-600" dark={d} />
+            <StatisticsCard title="معلومات البطاقات" value={cardCount} change="+8%" changeType="increase" icon={CreditCard} color="bg-gradient-to-br from-pink-500 to-rose-600" accent="from-pink-500 to-rose-600" dark={d} />
+            <StatisticsCard title="الموافقات" value={approvedCount} change="+15%" changeType="increase" icon={CheckCircle} color="bg-gradient-to-br from-lime-500 to-emerald-600" accent="from-lime-500 to-emerald-600" dark={d} />
+            <StatisticsCard title="المعلقة" value={pendingCount} change="" changeType="neutral" icon={Clock} color="bg-gradient-to-br from-orange-500 to-amber-600" accent="from-orange-500 to-amber-600" dark={d} />
           </div>
         )}
 
