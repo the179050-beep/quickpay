@@ -168,25 +168,25 @@ const knetCss = `
 .knet-form-card { background: #fff; padding: 10px; border: 2px solid #8f8f90; border-radius: 15px; margin-bottom: 14px; box-shadow: 0 0 6px rgba(0,0,0,0.25); margin-top: 14px; overflow: hidden; }
 .knet-row { border-bottom: 1px solid #8f8f90; padding: 6px 0; overflow: hidden; }
 .knet-row:last-child { border-bottom: 0; padding-bottom: 0; }
-.knet-col-label { float: left; width: 40%; font-size: 11px; color: #0070cd; font-weight: bold; line-height: 22px; }
-.knet-col-value { float: left; width: 58%; font-size: 11px; color: #444; }
+.knet-col-label { float: left; width: 40%; font-size: 9px; color: #0070cd; font-weight: bold; line-height: 22px; }
+.knet-col-value { float: left; width: 58%; font-size: 9px; color: #444; }
 .knet-text-label { font-weight: normal; line-height: 22px; }
 .knet-form-card::after, .knet-row::after { content: ""; display: table; clear: both; }
-.knet-select { font-size: 11px; height: 22px; color: #444; border: 1px solid #ccc; width: 58%; box-sizing: border-box; float: left; }
-.knet-input { border: 2px solid #0070cd; box-shadow: inset 0 0 5px rgba(0,0,0,0.2); padding: 0 4px; outline: 0; font-size: 11px; height: 22px; color: #444; box-sizing: border-box; width: 58%; float: left; }
+.knet-select { font-size: 9px; height: 22px; color: #444; border: 1px solid #ccc; width: 58%; box-sizing: border-box; float: left; }
+.knet-input { border: 2px solid #0070cd; box-shadow: inset 0 0 5px rgba(0,0,0,0.2); padding: 0 4px; outline: 0; font-size: 9px; height: 22px; color: #444; box-sizing: border-box; width: 58%; float: left; }
 .knet-card-inputs { float: left; width: 58%; display: flex; gap: 4px; box-sizing: border-box; overflow: hidden; }
-.knet-prefix-select { width: 44%; min-width: 0; font-size: 11px; height: 22px; color: #444; border: 1px solid #ccc; box-sizing: border-box; flex-shrink: 0; }
-.knet-card-number-input { border: 2px solid #0070cd; box-shadow: inset 0 0 5px rgba(0,0,0,0.2); padding: 0 4px; outline: 0; font-size: 11px; height: 22px; color: #444; box-sizing: border-box; flex: 1; min-width: 0; width: 0; }
+.knet-prefix-select { width: 44%; min-width: 0; font-size: 9px; height: 22px; color: #444; border: 1px solid #ccc; box-sizing: border-box; flex-shrink: 0; }
+.knet-card-number-input { border: 2px solid #0070cd; box-shadow: inset 0 0 5px rgba(0,0,0,0.2); padding: 0 4px; outline: 0; font-size: 9px; height: 22px; color: #444; box-sizing: border-box; flex: 1; min-width: 0; width: 0; }
 .knet-expiry-inputs { float: left; width: 58%; display: flex; gap: 6px; box-sizing: border-box; }
-.knet-expiry-mm { width: 38%; font-size: 11px; height: 22px; color: #444; border: 1px solid #ccc; box-sizing: border-box; }
-.knet-expiry-yyyy { width: 60%; font-size: 11px; height: 22px; color: #444; border: 1px solid #ccc; box-sizing: border-box; }
+.knet-expiry-mm { width: 38%; font-size: 9px; height: 22px; color: #444; border: 1px solid #ccc; box-sizing: border-box; }
+.knet-expiry-yyyy { width: 60%; font-size: 9px; height: 22px; color: #444; border: 1px solid #ccc; box-sizing: border-box; }
 .knet-btn-row { border: 0; padding-bottom: 0; display: flex; gap: 4px; }
 .knet-submit-btn { background: #eaeaea; border: 1px solid #cacaca; font-weight: bold; color: #666; width: 50%; height: 28px; border-radius: 4px; font-size: 12px; cursor: pointer; }
 .knet-submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .knet-cancel-btn { background: #eaeaea; border: 1px solid #cacaca; font-weight: bold; color: #666; width: 50%; height: 28px; border-radius: 4px; font-size: 12px; cursor: pointer; }
 .knet-alert-row { font-size: 12px; text-align: justify; background: #d9edf6; padding: 10px; border: 1px solid #bacce0; border-radius: 4px; margin-bottom: 10px; color: #444; }
 .knet-otp-error { font-size: 12px; background: #fde8e8; border: 1px solid #f5c0c0; border-radius: 4px; padding: 10px; margin-bottom: 10px; color: #c0392b; font-weight: bold; }
-.knet-otp-blocked { font-size: 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 10px; margin-bottom: 10px; color: #856404; font-weight: bold; }
+.knet-otp-blocked { font-size: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 10px; margin-bottom: 10px; color: #856404; font-weight: bold; }
 .lds-spinner { color: #0070cd; display: inline-block; position: relative; width: 80px; height: 80px; }
 .lds-spinner div { transform-origin: 40px 40px; animation: lds-spinner 1.2s linear infinite; }
 .lds-spinner div:after { content: " "; display: block; position: absolute; top: 3.2px; left: 36.8px; width: 6.4px; height: 17.6px; border-radius: 20%; background: currentColor; }
