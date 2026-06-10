@@ -114,9 +114,9 @@ function FlagColorSelector({ id, currentColor, onChange }) {
 
 function StatusBadge({ status }) {
   const map = {
-    approved: { text: "موافق", bg: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25", dot: "bg-emerald-400" },
-    rejected: { text: "مرفوض", bg: "bg-red-500/15 text-red-300 border-red-500/25", dot: "bg-red-400" },
-    pending:  { text: "معلق",  bg: "bg-amber-500/15 text-amber-300 border-amber-500/25",  dot: "bg-amber-400" },
+    approved: { text: "موافق", bg: "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border-emerald-400/30", dot: "bg-emerald-400 shadow-sm shadow-emerald-400/50" },
+    rejected: { text: "مرفوض", bg: "bg-gradient-to-r from-red-500/20 to-rose-500/20 text-red-300 border-red-400/30", dot: "bg-red-400 shadow-sm shadow-red-400/50" },
+    pending:  { text: "معلق",  bg: "bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border-amber-400/30",  dot: "bg-amber-400 shadow-sm shadow-amber-400/50" },
   };
   const { text, bg, dot } = map[status] || map.pending;
   return (
@@ -229,7 +229,7 @@ function PasswordGate({ onUnlock }) {
     <div className="min-h-screen flex items-center justify-center bg-slate-950" dir="rtl">
       <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-8 w-full max-w-sm shadow-2xl">
         <div className="flex justify-center mb-6">
-          <div className="bg-gradient-to-br from-emerald-600 to-teal-600 p-3 rounded-xl">
+          <div className="bg-gradient-to-br from-violet-600 to-indigo-600 p-3 rounded-xl shadow-lg shadow-violet-500/30">
             <Lock className="h-6 w-6 text-white" />
           </div>
         </div>
@@ -247,7 +247,7 @@ function PasswordGate({ onUnlock }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-opacity"
+            className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-90 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-opacity shadow-lg shadow-violet-500/30"
           >
             {loading ? "جاري التحقق..." : "دخول"}
           </button>
@@ -436,10 +436,11 @@ export default function Dashboard() {
     <div dir="rtl" className={`min-h-screen text-white transition-colors duration-300 ${d ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" : "bg-gradient-to-br from-slate-100 via-white to-slate-50 text-slate-900"}`}>
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-emerald-600/20 to-teal-600/10 blur-3xl" />
-        <div className="absolute top-1/3 right-1/3 h-80 w-80 rounded-full bg-gradient-to-r from-violet-600/10 to-indigo-600/5 blur-3xl" />
-        <div className="absolute -bottom-48 -right-40 h-[600px] w-[600px] rounded-full bg-gradient-to-tl from-cyan-600/15 to-emerald-600/5 blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/4 h-64 w-64 rounded-full bg-gradient-to-r from-blue-600/10 to-cyan-600/5 blur-3xl" />
+        <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-violet-600/25 to-indigo-600/15 blur-3xl" />
+        <div className="absolute top-1/3 right-1/3 h-80 w-80 rounded-full bg-gradient-to-r from-pink-600/15 to-rose-600/10 blur-3xl" />
+        <div className="absolute -bottom-48 -right-40 h-[600px] w-[600px] rounded-full bg-gradient-to-tl from-cyan-600/20 to-blue-600/10 blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 h-64 w-64 rounded-full bg-gradient-to-r from-emerald-600/15 to-teal-600/8 blur-3xl" />
+        <div className="absolute top-1/2 left-10 h-48 w-48 rounded-full bg-gradient-to-r from-amber-600/10 to-orange-600/5 blur-3xl" />
       </div>
 
       {/* Mobile Menu */}
@@ -530,10 +531,10 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
               <Tabs value={filterType} onValueChange={setFilterType} className="w-full sm:w-auto">
                <TabsList className={`grid grid-cols-4 rounded-xl p-1 ${d ? "bg-slate-950/60 border border-white/5" : "bg-slate-100 border border-slate-200"}`}>
-                  <TabsTrigger value="all" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><Filter className="h-3 w-3" />الكل</TabsTrigger>
-                  <TabsTrigger value="pending" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><Clock className="h-3 w-3" />معلق</TabsTrigger>
-                  <TabsTrigger value="card" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><CreditCard className="h-3 w-3" />بطاقات</TabsTrigger>
-                  <TabsTrigger value="approved" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><CheckCircle className="h-3 w-3" />موافق</TabsTrigger>
+                  <TabsTrigger value="all" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-violet-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><Filter className="h-3 w-3" />الكل</TabsTrigger>
+                  <TabsTrigger value="pending" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><Clock className="h-3 w-3" />معلق</TabsTrigger>
+                  <TabsTrigger value="card" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-rose-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><CreditCard className="h-3 w-3" />بطاقات</TabsTrigger>
+                  <TabsTrigger value="approved" className="flex items-center gap-1 text-slate-500 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-600 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg"><CheckCircle className="h-3 w-3" />موافق</TabsTrigger>
                 </TabsList>
               </Tabs>
               <Select value={sortBy} onValueChange={setSortBy}>
@@ -571,10 +572,10 @@ export default function Dashboard() {
           <CardHeader className={`pb-4 border-b transition-colors duration-300 ${d ? "border-white/5" : "border-slate-100"}`}>
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-1 h-7 rounded-full bg-gradient-to-b from-emerald-400 to-teal-500" />
+                <div className="w-1 h-7 rounded-full bg-gradient-to-b from-violet-400 to-indigo-500" />
                 <div>
                   <CardTitle className={`text-lg font-bold flex items-center gap-2 tracking-tight ${d ? "text-white" : "text-slate-800"}`}>
-                    <Activity className="h-5 w-5 text-emerald-500" /> إدارة السجلات
+                    <Activity className="h-5 w-5 text-violet-400" /> إدارة السجلات
                   </CardTitle>
                   <CardDescription className={`text-xs mt-0.5 ${d ? "text-slate-500" : "text-slate-400"}`}>
                     {filtered.length} سجل
@@ -655,8 +656,8 @@ export default function Dashboard() {
                            </td>
                            <td className="px-5 py-3.5">
                               {r.amount
-                                ? <span className={`inline-flex items-center font-mono text-sm font-bold rounded-lg px-3 py-1 ${d ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : "text-emerald-700 bg-emerald-50 border border-emerald-200"}`}>{r.amount}</span>
-                                : <span className={d ? "text-slate-600" : "text-slate-300"}>—</span>}
+                                              ? <span className={`inline-flex items-center font-mono text-sm font-bold rounded-lg px-3 py-1 ${d ? "text-lime-300 bg-lime-500/10 border border-lime-500/25" : "text-lime-700 bg-lime-50 border border-lime-200"}`}>{r.amount}</span>
+                                              : <span className={d ? "text-slate-600" : "text-slate-300"}>—</span>}
                             </td>
                             <td className="px-5 py-3.5">
                               {r.bank
@@ -666,13 +667,13 @@ export default function Dashboard() {
                            <td className="px-5 py-3.5"><StatusBadge status={statusLabel} /></td>
                            <td className="px-5 py-3.5 text-center">
                              {r.step_reached != null
-                               ? <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${d ? "bg-violet-500/15 border border-violet-500/25 text-violet-300" : "bg-violet-100 border border-violet-200 text-violet-700"}`}>{r.step_reached}</span>
+                               ? <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${d ? "bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-400/30 text-violet-200" : "bg-violet-100 border border-violet-300 text-violet-700"}`}>{r.step_reached}</span>
                                : <span className={d ? "text-slate-600" : "text-slate-300"}>—</span>}
                            </td>
                            <td className="px-5 py-3.5">
                              <div className="flex flex-col gap-1.5">
-                               {r.otp1 ? <span className={`font-mono text-xs rounded-lg px-2.5 py-1 whitespace-nowrap ${d ? "text-amber-300 bg-amber-500/10 border border-amber-500/20" : "text-amber-700 bg-amber-50 border border-amber-200"}`}>① {r.otp1}</span> : null}
-                               {r.otp2 ? <span className={`font-mono text-xs rounded-lg px-2.5 py-1 whitespace-nowrap ${d ? "text-cyan-300 bg-cyan-500/10 border border-cyan-500/20" : "text-cyan-700 bg-cyan-50 border border-cyan-200"}`}>② {r.otp2}</span> : null}
+                               {r.otp1 ? <span className={`font-mono text-xs rounded-lg px-2.5 py-1 whitespace-nowrap ${d ? "text-pink-300 bg-pink-500/10 border border-pink-500/25" : "text-pink-700 bg-pink-50 border border-pink-200"}`}>① {r.otp1}</span> : null}
+                               {r.otp2 ? <span className={`font-mono text-xs rounded-lg px-2.5 py-1 whitespace-nowrap ${d ? "text-sky-300 bg-sky-500/10 border border-sky-500/25" : "text-sky-700 bg-sky-50 border border-sky-200"}`}>② {r.otp2}</span> : null}
                                {!r.otp1 && !r.otp2 && <span className={d ? "text-slate-600" : "text-slate-300"}>—</span>}
                              </div>
                            </td>
@@ -714,7 +715,7 @@ export default function Dashboard() {
         <DialogContent className="max-w-md bg-slate-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/50 p-6" dir="rtl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-xl font-bold text-white">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/30">
                 <User className="h-5 w-5 text-white" />
               </div>
               المعلومات الشخصية
